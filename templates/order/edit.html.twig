@@ -19,16 +19,17 @@
 
     <div class="example-wrapper">
 
-        <p>{{ order.id }}</p>
-        <p>{{ order.createdAt|date('Y-m-d H:i') }}</p>
-        <p>{{ order.package.name }}</p>
-        <p>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</p>
+        {{ form_start(form) }}
 
-        <a href="{{ path('app_order') }}">Back</a>
-        <br>
-        <a href="{{ path('app_order_edit', {id: order.id}) }}">Edit</a>
-        <br>
-        <a href="{{ path('app_order_delete', {id:order.id}) }}">Delete</a>
+        {{ form_row(form.createdAt) }}
+        {{ form_row(form.package) }}
+        {{ form_row(form.consumer) }}
+
+        {{ form_row(form.submit) }}
+
+        {{ form_end(form) }}
+
+        <a href="{{ path('app_order') }}">Cancel</a>
 
     </div>
 {% endblock %}

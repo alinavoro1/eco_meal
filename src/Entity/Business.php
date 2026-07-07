@@ -37,9 +37,12 @@ class Business
     /**
      * @var Collection<int, Package>
      */
-    #[ORM\OneToMany(targetEntity: Package::class, mappedBy: 'business')]
+    #[ORM\OneToMany(
+        targetEntity: Package::class,
+        mappedBy: 'business',
+        cascade: ['remove']
+    )]
     private Collection $packages;
-
     public function __construct()
     {
         $this->packages = new ArrayCollection();

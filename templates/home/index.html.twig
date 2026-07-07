@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Eco Meal – Dashboard{% endblock %}
+
+{% block body %}
+
+    <div class="text-center mb-5">
+        <h1 style="font-size:2.4rem; font-weight:800; color:#0f172a; letter-spacing:-0.03em;">
+            Welcome to <span style="color:#10b981;">EcoMeal</span>
+        </h1>
+        <p style="color:#64748b; font-size:1.05rem; margin-top:10px; max-width:480px; margin-inline:auto;">
+            Manage your food delivery platform from one place.
+        </p>
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="eco-card" style="border-left: 4px solid #10b981;">
+                <h4 style="font-weight:800; color:#0f172a; margin-bottom:6px;">Businesses</h4>
+                <a class="eco-btn eco-btn-primary" href="{{ path('app_business') }}">Open</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="eco-card" style="border-left: 4px solid #8b5cf6;">
+                <h4 style="font-weight:800; color:#0f172a; margin-bottom:6px;">Business Types</h4>
+                <a class="eco-btn eco-btn-secondary" href="{{ path('app_business_type') }}">Open</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="eco-card" style="border-left: 4px solid #10b981;">
+                <h4 style="font-weight:800; color:#0f172a; margin-bottom:6px;">Categories</h4>
+                <a class="eco-btn eco-btn-primary" href="{{ path('app_category') }}">Open</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="eco-card" style="border-left: 4px solid #8b5cf6;">
+                <h4 style="font-weight:800; color:#0f172a; margin-bottom:6px;">Consumers</h4>
+                <a class="eco-btn eco-btn-secondary" href="{{ path('app_consumer') }}">Open</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="eco-card" style="border-left: 4px solid #f59e0b;">
+                <h4 style="font-weight:800; color:#0f172a; margin-bottom:6px;">Packages</h4>
+                <a class="eco-btn eco-btn-primary" style="background:#f59e0b;" href="{{ path('app_package') }}">Open</a>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="eco-card" style="border-left: 4px solid #10b981;">
+                <h4 style="font-weight:800; color:#0f172a; margin-bottom:6px;">Orders</h4>
+                <a class="eco-btn eco-btn-primary" href="{{ path('app_order') }}">Open</a>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

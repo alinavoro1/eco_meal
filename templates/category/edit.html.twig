@@ -17,18 +17,13 @@
         }
     </style>
 
-    <p>{{ category.id }}</p>
-    <p>{{ category.name }}</p>
+    <div class="example-wrapper">
+        {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.submit) }}
+        {{ form_end(form) }}
 
-    <a href="{{ path('app_category') }}">Back</a>
-    <br>
-    <a href="{{ path('app_category_edit', {
-        id: category.id
-    }) }}">Edit</a>
-    <br>
-    <a href="{{ path('app_category_delete', {
-        id: category.id
-    }) }}">Delete</a>
-
+        <a href="{{ path('app_category') }}">Cancel</a>
+    </div>
 {% endblock %}
 

@@ -43,7 +43,23 @@ final class ConsumerController extends AbstractController
         ]);
     }
 
-    #[Route('/consumer/{id}', name: 'app_consumer_view')]
+    #[Route('/consumer/{id}/edit', name: 'app_consumer_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request,Consumer $consumer, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(ConsumerFormType::class, $consumer);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            return $this->redirectToRoute('app_consumer_view', ['id' => $consumer->getId()]);
+        }
+
+        return $this->render('consumer/edit.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/consumer/{id}', name: 'app_consumer_view', methods: ['GET'])]
     public function view(int $id, ConsumerRepository $consumerRepository): Response
     {
         $consumer = $consumerRepository->find($id);
@@ -51,5 +67,12 @@ final class ConsumerController extends AbstractController
         return $this->render('consumer/view.html.twig', [
             'consumer' => $consumer,
         ]);
+    }
+    #[Route('/consumer/delete/{id}', name: 'app_consumer_delete', methods: ['GET'])]
+    public function delete(Consumer $consumer, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($consumer);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_consumer');
     }
 }

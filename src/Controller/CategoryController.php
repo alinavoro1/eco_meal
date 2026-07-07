@@ -41,7 +41,23 @@ final class CategoryController extends AbstractController
         ]);
     }
 
-    #[Route('/category/{id}', name: 'app_category_view')]
+    #[Route('/category/{id}/edit', name: 'app_category_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request,Category $category, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(CategoryFormType::class, $category);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){
+            $entityManager->flush();
+            return $this->redirectToRoute('app_category_view', ['id' => $category->getId()]);
+        }
+
+        return $this->render('category/edit.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/category/{id}', name: 'app_category_view', methods: ['GET'])]
     public function view(int $id, categoryRepository $categoryRepository): Response
     {
         $category = $categoryRepository->find($id);
@@ -49,5 +65,14 @@ final class CategoryController extends AbstractController
             'category' => $category,
         ]);
     }
+
+    #[Route('/category/delete/{id}', name: 'app_category_delete', methods: ['GET'])]
+    public function delete(Category $category, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($category);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_category');
+    }
+
 
 }

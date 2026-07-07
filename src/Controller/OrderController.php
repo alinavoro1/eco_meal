@@ -44,6 +44,23 @@ final class OrderController extends AbstractController
         ]);
     }
 
+    #[Route('/order/{id}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request,Order $order, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(OrderFormType::class, $order);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_order_view', ['id' => $order->getId()]);
+        }
+
+        return $this->render('order/edit.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
     #[Route('/order/{id}', name: 'app_order_view')]
     public function view(int $id, OrderRepository $orderRepository): Response
     {
@@ -52,6 +69,14 @@ final class OrderController extends AbstractController
         return $this->render('order/view.html.twig', [
             'order' => $order,
         ]);
+    }
+
+    #[Route('order/delete/{id}', name: 'app_order_delete', methods: ['GET'])]
+    public function delete(Order $order, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($order);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_order');
     }
 
 }

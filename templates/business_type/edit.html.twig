@@ -17,16 +17,13 @@
         }
     </style>
 
-    <p>{{ consumer.id }}</p>
-    <p>{{ consumer.firstName }}</p>
-    <p>{{ consumer.lastName }}</p>
-    <p>{{ consumer.phoneNumber }}</p>
+    <div class="example-wrapper">
+        {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.submit) }}
+        {{ form_end(form) }}
 
-    <a href="{{ path('app_consumer') }}">Back</a>
-    <br>
-    <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}">Edit</a>
-    <br>
-    <a href="{{ path('app_consumer_delete', {id: consumer.id}) }}">Delete</a>
-
+        <a href="{{ path('app_business_type') }}">Cancel</a>
+    </div>
 {% endblock %}
 

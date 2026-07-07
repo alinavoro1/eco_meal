@@ -31,10 +31,6 @@ class PackageFormType extends AbstractType
                 'class' => Category::class,
                 'choice_label' => 'name'
             ])
-            ->add('business', EntityType::class, [
-                'class' => Business::class,
-                'choice_label' => 'name'
-            ])
             ->add('submit', SubmitType::class);
     }
 

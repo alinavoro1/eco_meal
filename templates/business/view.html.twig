@@ -1,31 +1,91 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello BusinessController!{% endblock %}
+{% block title %}{{ business.name }} – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-
-    <div class="example-wrapper">
-        <p>{{ business.id }}</p>
-        <p>{{ business.name }}</p>
-        <p>{{ business.city }}</p>
-        <p>{{ business.street }}</p>
-        <p>{{ business.houseNumber }}</p>
-        <p>{{ business.phoneNumber }}</p>
-        <p>{{ business.businessType.name }}</p>
-
-        <a href="{{ path('app_business') }}">Back</a>
+    <div class="eco-page-header">
+        <h1>{{ business.name }}</h1>
     </div>
+
+    <div class="eco-detail-card">
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">ID</span>
+            <span class="eco-detail-value">{{ business.id }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Name</span>
+            <span class="eco-detail-value">{{ business.name }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">City</span>
+            <span class="eco-detail-value">{{ business.city }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Street</span>
+            <span class="eco-detail-value">{{ business.street }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">House No.</span>
+            <span class="eco-detail-value">{{ business.houseNumber }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Phone</span>
+            <span class="eco-detail-value">{{ business.phoneNumber }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Business Type</span>
+            <span class="eco-detail-value"><span class="badge badge-violet">{{ business.businessType.name }}</span></span>
+        </div>
+        <div class="eco-detail-actions">
+            <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="eco-btn eco-btn-primary">+ Add Package</a>
+            <a href="{{ path('app_business') }}" class="eco-btn eco-btn-ghost">Back</a>
+            <a href="{{ path('app_business_edit', {id: business.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
+            <a href="{{ path('app_business_delete', {id: business.id}) }}" class="eco-btn eco-btn-danger"
+               onclick="return confirm('Delete this business?')">Delete</a>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px;">
+        <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 20px; color: var(--text);">Packages</h2>
+
+        {% if business.packages|length > 0 %}
+            <div class="eco-packages-grid">
+                {% for package in business.packages %}
+                    <div class="eco-package-card">
+                        {% if package.photo %}
+                            <div class="eco-package-image">
+                                <img src="{{ package.photo }}" alt="{{ package.name }}" />
+                            </div>
+                        {% else %}
+                            <div class="eco-package-image-empty">
+                                <span style="font-size: 2.5rem;">📦</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="eco-package-content">
+                            <h3 class="eco-package-name">{{ package.name }}</h3>
+                            <p class="eco-package-description">{{ package.description }}</p>
+
+                            <div class="eco-package-meta">
+                                <span class="eco-package-price">{{ package.price }} lei</span>
+                                <span class="badge badge-amber">{{ package.category.name }}</span>
+                            </div>
+
+                            <div class="eco-package-actions">
+                                <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
+                                <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                                <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                📦 No packages yet. <a href="{{ path('app_business_add_package', {id: business.id}) }}" style="color: var(--primary); font-weight: 600;">Create one</a>
+            </div>
+        {% endif %}
+    </div>
+
 {% endblock %}

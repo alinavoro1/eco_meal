@@ -25,7 +25,12 @@ class BusinessFormType extends AbstractType
                 'class' => BusinessType::class,
                 'choice_label' => 'name'
             ])
-            ->add('submit', SubmitType::class);
+            ->add('submit', SubmitType::class,[
+                'label' => 'Create Business',
+                'attr' => [
+                    'class' => 'btn btn-success'
+                ]
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
