@@ -1,29 +1,25 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello BusinessTypeController!{% endblock %}
+{% block title %}Edit Business Type – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="eco-page-header">
+        <h1>Edit Business Type</h1>
+        <a href="{{ path('app_business_type_view', {id: form.vars.data.id}) }}" class="eco-btn eco-btn-ghost">← Back</a>
+    </div>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-
-    <div class="example-wrapper">
+    <div class="eco-form-card">
+        <p class="eco-form-title">{{ form.vars.data.name }}</p>
         {{ form_start(form) }}
         {{ form_row(form.name) }}
-        {{ form_row(form.submit) }}
-        {{ form_end(form) }}
 
-        <a href="{{ path('app_business_type') }}">Cancel</a>
+        <div style="display: flex; gap: 10px; margin-top: 24px;">
+            {{ form_row(form.submit, {
+                attr: { class: 'eco-btn eco-btn-primary', style: 'flex: 1; margin: 0; border: none; cursor: pointer;' },
+                label: 'Save Changes'
+            }) }}
+            <a href="{{ path('app_business_type_view', {id: form.vars.data.id}) }}" class="eco-btn eco-btn-ghost" style="flex: 1; text-align: center;">Cancel</a>
+        </div>
+        {{ form_end(form) }}
     </div>
 {% endblock %}
-

@@ -1,55 +1,60 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello OrderController!{% endblock %}
+{% block title %}Orders – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-
-    <div class="example-wrapper">
-
-        <a href="{{ path('app_order_new') }}">Create new order</a>
-        <br>
-        <table>
-
-            <tr>
-                <th>Id</th>
-                <th>Created</th>
-                <th>Package</th>
-                <th>Consumer</th>
-            </tr>
-
-            {% for order in orders %}
-
-                <tr>
-
-                    <td>
-                        <a href="{{ path('app_order_view',{
-                            id: order.id
-                        }) }}">
-                            {{ order.id }}
-                        </a>
-                    </td>
-
-                    <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
-                    <td>{{ order.package.name }}</td>
-                    <td>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</td>
-
-                </tr>
-
-            {% endfor %}
-
-        </table>
+    <div class="eco-page-header">
+        <h1>{% if is_granted('ROLE_ADMIN') %}All Orders{% elseif is_granted('ROLE_CONSUMER') %}My Orders{% else %}Orders{% endif %}</h1>
+        {% if is_granted('ROLE_CONSUMER') %}
+            <a href="{{ path('app_order_new') }}" class="eco-btn eco-btn-primary">+ New Order</a>
+        {% endif %}
     </div>
+
+    {% if orders|length > 0 %}
+        <div class="eco-orders-grid">
+            {% for order in orders %}
+                <div class="eco-order-card">
+                    <div class="eco-order-header">
+                        <div class="eco-order-id">Order #{{ order.id }}</div>
+                        <div class="eco-order-date">{{ order.createdAt|date('d M Y, H:i') }}</div>
+                    </div>
+
+                    <div class="eco-order-package">
+                        <div class="eco-order-label">Package</div>
+                        <h3 class="eco-order-package-name">{{ order.package.name }}</h3>
+                        <p class="eco-order-package-desc">{{ order.package.description }}</p>
+                        <div class="eco-order-price">{{ order.package.price }} lei</div>
+                    </div>
+
+                    <div class="eco-order-consumer">
+                        <div class="eco-order-label">From</div>
+                        <p>
+                            <strong>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</strong><br>
+                            <span style="color: var(--text-muted); font-size: 13px;">{{ order.consumer.phoneNumber }}</span>
+                        </p>
+                    </div>
+
+                    <div class="eco-order-business">
+                        <div class="eco-order-label">Seller</div>
+                        <p><strong>{{ order.package.business.name }}</strong></p>
+                    </div>
+
+                    <div class="eco-order-actions">
+                        <a href="{{ path('app_order_view', {id: order.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View Details</a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_order_edit', {id: order.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                            <a href="{{ path('app_order_delete', {id: order.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this order?')">Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+            📋 No orders yet.
+            {% if is_granted('ROLE_CONSUMER') %}
+                <a href="{{ path('app_order_new') }}" style="color: var(--primary); font-weight: 600;">Create one</a>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endblock %}

@@ -1,34 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CategoryController!{% endblock %}
+{% block title %}{{ category.name }} – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="eco-page-header">
+        <h1>{{ category.name }}</h1>
+        <a href="{{ path('app_category') }}" class="eco-btn eco-btn-ghost">← Back</a>
+    </div>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
+    <div class="eco-detail-card">
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">ID</span>
+            <span class="eco-detail-value">{{ category.id }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Name</span>
+            <span class="eco-detail-value">{{ category.name }}</span>
+        </div>
 
-    <p>{{ category.id }}</p>
-    <p>{{ category.name }}</p>
-
-    <a href="{{ path('app_category') }}">Back</a>
-    <br>
-    <a href="{{ path('app_category_edit', {
-        id: category.id
-    }) }}">Edit</a>
-    <br>
-    <a href="{{ path('app_category_delete', {
-        id: category.id
-    }) }}">Delete</a>
-
+        <div class="eco-detail-actions">
+            <a href="{{ path('app_category_edit', {id: category.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
+            <a href="{{ path('app_category_delete', {id: category.id}) }}" class="eco-btn eco-btn-danger"
+               onclick="return confirm('Delete this category?')">Delete</a>
+        </div>
+    </div>
 {% endblock %}
-

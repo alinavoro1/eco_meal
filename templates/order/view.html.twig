@@ -1,34 +1,50 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello OrderController!{% endblock %}
+{% block title %}Order #{{ order.id }} – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="eco-page-header">
+        <h1>Order #{{ order.id }}</h1>
+        <a href="{{ path('app_order') }}" class="eco-btn eco-btn-ghost">← Back to Orders</a>
+    </div>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
+    <div class="eco-detail-card">
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Order ID</span>
+            <span class="eco-detail-value" style="color: var(--primary); font-weight: 700;">#{{ order.id }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Date</span>
+            <span class="eco-detail-value">{{ order.createdAt|date('d M Y, H:i') }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Package</span>
+            <span class="eco-detail-value">
+                <a href="{{ path('app_package_view', {id: order.package.id}) }}" style="color: var(--primary); font-weight: 600;">{{ order.package.name }}</a>
+                <span class="badge badge-amber" style="margin-left: 8px;">{{ order.package.category.name }}</span>
+            </span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Price</span>
+            <span class="eco-detail-value" style="font-size: 1.15rem; font-weight: 700; color: var(--primary);">{{ order.package.price }} lei</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Business</span>
+            <span class="eco-detail-value">{{ order.package.business.name }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Consumer</span>
+            <span class="eco-detail-value">{{ order.consumer.firstName }} {{ order.consumer.lastName }}<br>
+                <span style="font-size: 13px; color: var(--text-muted);">{{ order.consumer.phoneNumber }}</span>
+            </span>
+        </div>
 
-    <div class="example-wrapper">
-
-        <p>{{ order.id }}</p>
-        <p>{{ order.createdAt|date('Y-m-d H:i') }}</p>
-        <p>{{ order.package.name }}</p>
-        <p>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</p>
-
-        <a href="{{ path('app_order') }}">Back</a>
-        <br>
-        <a href="{{ path('app_order_edit', {id: order.id}) }}">Edit</a>
-        <br>
-        <a href="{{ path('app_order_delete', {id:order.id}) }}">Delete</a>
-
+        <div class="eco-detail-actions">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_order_edit', {id: order.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
+                <a href="{{ path('app_order_delete', {id: order.id}) }}" class="eco-btn eco-btn-danger"
+                   onclick="return confirm('Delete this order?')">Delete</a>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

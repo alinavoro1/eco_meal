@@ -1,54 +1,55 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ConsumerController!{% endblock %}
+{% block title %}Consumers – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="eco-page-header">
+        <h1>Consumers</h1>
+        <a href="{{ path('app_consumer_new') }}" class="eco-btn eco-btn-primary">+ New Consumer</a>
+    </div>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-
-    <div class="example-wrapper">
-        <a href="{{ path('app_consumer_new') }}">Create new consumer</a>
-        <br>
-        <table>
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Phone number</th>
-            </tr>
-            </thead>
-
-            <tbody>
-
-            {% for consumer in consumers %}
+    <div class="eco-table-wrap">
+        <div style="overflow-x:auto;">
+            <table class="eco-table">
+                <thead>
                 <tr>
-                    <td>
-                        <a href="{{ path('app_consumer_view', {
-                            id: consumer.id
-                        }) }}">
-                            {{ consumer.id }}
-                        </a>
-                    </td>
-
-                    <td>{{ consumer.firstName }}</td>
-                    <td>{{ consumer.lastName }}</td>
-                    <td>{{ consumer.phoneNumber }}</td>
-
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for consumer in consumers %}
+                    <tr>
+                        <td class="id-cell">{{ consumer.id }}</td>
+                        <td>
+                            <a href="{{ path('app_consumer_view', {id: consumer.id}) }}" class="table-link">
+                                {{ consumer.firstName }}
+                            </a>
+                        </td>
+                        <td>{{ consumer.lastName }}</td>
+                        <td>{{ consumer.phoneNumber }}</td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                {% if is_granted('ROLE_CONSUMER') and user and user.getConsumer() and user.getConsumer().getId() == consumer.getId() %}
+                                    <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}" class="eco-btn eco-btn-ghost" style="padding: 6px 14px; font-size: 13px;">Edit</a>
+                                {% endif %}
+                                <a href="{{ path('app_consumer_delete', {id: consumer.id}) }}" class="eco-btn eco-btn-danger" style="padding: 6px 14px; font-size: 13px;" onclick="return confirm('Delete this consumer?')">Delete</a>
+
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="eco-empty">No consumers found.</div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

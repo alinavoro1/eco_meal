@@ -2,7 +2,6 @@
 
 namespace App\Form;
 
-use App\Entity\Business;
 use App\Entity\Category;
 use App\Entity\Package;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -11,9 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
 class PackageFormType extends AbstractType
 {

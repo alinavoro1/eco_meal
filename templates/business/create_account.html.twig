@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Account – {{ business.name }} – Eco Meal{% endblock %}
+
+{% block body %}
+    <div class="eco-page-header">
+        <h1>Create Business Account</h1>
+        <a href="{{ path('app_business_view', {id: business.id}) }}" class="eco-btn eco-btn-ghost">← Back</a>
+    </div>
+
+    <div class="eco-form-card" style="max-width: 520px;">
+        <div style="display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: var(--secondary-soft); border-radius: var(--radius-sm); margin-bottom: 28px; border: 1px solid rgba(139,92,246,0.15);">
+            <span style="font-size: 2rem;">🏢</span>
+            <div>
+                <div style="font-weight: 700; color: var(--text);">{{ business.name }}</div>
+                <div style="font-size: 13px; color: var(--text-muted);">{{ business.city }}, {{ business.street }} {{ business.houseNumber }}</div>
+            </div>
+        </div>
+
+        <p class="eco-form-title">Account Credentials</p>
+
+        {{ form_start(form) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.plainPassword) }}
+
+            <div style="display: flex; gap: 10px; margin-top: 28px;">
+                {{ form_row(form.submit, {
+                    attr: { class: 'eco-btn eco-btn-primary', style: 'flex: 1; margin: 0; border: none; cursor: pointer;' }
+                }) }}
+                <a href="{{ path('app_business_view', {id: business.id}) }}" class="eco-btn eco-btn-ghost" style="flex: 1; text-align: center;">Cancel</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

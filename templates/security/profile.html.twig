@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile – Eco Meal{% endblock %}
+
+{% block body %}
+    <div class="eco-page-header">
+        <h1>My Profile</h1>
+        <a href="{{ path('app_home') }}" class="eco-btn eco-btn-ghost">← Back to Dashboard</a>
+    </div>
+
+    <div class="eco-form-card" style="max-width: 520px;">
+        <p class="eco-form-title">Edit Account Credentials</p>
+
+        {{ form_start(form) }}
+            {{ form_row(form.email) }}
+            {{ form_row(form.plainPassword) }}
+
+            <div style="display: flex; gap: 10px; margin-top: 28px;">
+                {{ form_row(form.submit, {
+                    attr: { class: 'eco-btn eco-btn-primary', style: 'flex: 1; margin: 0; border: none; cursor: pointer;' }
+                }) }}
+                <a href="{{ path('app_home') }}" class="eco-btn eco-btn-ghost" style="flex: 1; text-align: center;">Cancel</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

@@ -1,35 +1,52 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello OrderController!{% endblock %}
+{% block title %}New Order – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="eco-page-header">
+        <h1>New Order</h1>
+        <a href="{{ path('app_order') }}" class="eco-btn eco-btn-ghost">← Back</a>
+    </div>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
+    <div class="eco-form-card" style="max-width: 600px;">
+        <p class="eco-form-title">
+            {% if package %}
+                Order: {{ package.name }}
+            {% else %}
+                Order Details
+            {% endif %}
+        </p>
 
-    <div class="example-wrapper">
+        {% if package %}
+            <div style="background: var(--primary-soft); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 24px; border: 1px solid rgba(16,185,129,0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 700; color: var(--text);">{{ package.name }}</div>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">{{ package.business.name }}</div>
+                    </div>
+                    <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary);">{{ package.price }} lei</div>
+                </div>
+            </div>
+        {% endif %}
 
         {{ form_start(form) }}
+            {% if form.createdAt is defined %}
+                {{ form_row(form.createdAt) }}
+            {% endif %}
+            {% if form.package is defined %}
+                {{ form_row(form.package) }}
+            {% endif %}
+            {% if form.consumer is defined %}
+                {{ form_row(form.consumer) }}
+            {% endif %}
 
-        {{ form_row(form.createdAt) }}
-        {{ form_row(form.package) }}
-        {{ form_row(form.consumer) }}
-
-        {{ form_row(form.submit) }}
-
+            <div style="display: flex; gap: 10px; margin-top: 24px;">
+                {{ form_row(form.submit, {
+                    attr: { class: 'eco-btn eco-btn-primary', style: 'flex: 1; margin: 0; border: none; cursor: pointer;' },
+                    label: 'Place Order'
+                }) }}
+                <a href="{{ path('app_order') }}" class="eco-btn eco-btn-ghost" style="flex: 1; text-align: center;">Cancel</a>
+            </div>
         {{ form_end(form) }}
-
-        <a href="{{ path('app_order') }}">Cancel</a>
-
     </div>
 {% endblock %}

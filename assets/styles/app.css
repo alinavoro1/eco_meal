@@ -1,28 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Rubik+Mono+One&display=swap');
 
 :root {
-    --primary:       #10b981;
-    --primary-dark:  #059669;
-    --primary-soft:  #ecfdf5;
-    --secondary:     #8b5cf6;
-    --secondary-dark:#7c3aed;
-    --secondary-soft:#f5f3ff;
-    --amber:         #f59e0b;
-    --amber-soft:    #fffbeb;
-    --danger:        #ef4444;
-    --danger-dark:   #dc2626;
-    --bg:            #f8fafc;
-    --surface:       #ffffff;
-    --border:        #e2e8f0;
-    --text:          #0f172a;
-    --text-muted:    #64748b;
-    --radius-sm:     8px;
-    --radius:        12px;
-    --radius-lg:     18px;
-    --shadow-sm:     0 1px 4px rgba(0,0,0,0.06);
-    --shadow:        0 4px 16px rgba(0,0,0,0.08);
-    --shadow-md:     0 8px 30px rgba(0,0,0,0.11);
-    --transition:    0.2s ease;
+    --primary: #10b981;
+    --primary-dark: #059669;
+    --primary-soft: #ecfdf5;
+    --secondary: #8b5cf6;
+    --secondary-dark: #7c3aed;
+    --secondary-soft: #f5f3ff;
+    --amber: #f59e0b;
+    --amber-soft: #fffbeb;
+    --danger: #ef4444;
+    --danger-dark: #dc2626;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 18px;
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.11);
+    --transition: 0.2s ease;
 }
 
 *, *::before, *::after {
@@ -30,7 +30,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: var(--bg);
     color: var(--text);
     margin: 0;
@@ -40,6 +40,11 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
 a {
     text-decoration: none;
     color: inherit;
@@ -47,6 +52,21 @@ a {
 
 .eco-main {
     padding: 40px 0 72px;
+}
+
+.eco-brand {
+    font-family: 'Rubik Mono One', monospace;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #10b981;
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.03), 0 6px 18px rgba(16, 185, 129, 0.08);
+    text-transform: uppercase;
 }
 
 .eco-btn {
@@ -68,6 +88,7 @@ a {
     background: var(--primary);
     color: #fff;
 }
+
 .eco-btn-primary:hover {
     background: var(--primary-dark);
     color: #fff;
@@ -222,6 +243,7 @@ a {
     border: 1px solid var(--border);
     padding: 36px;
     max-width: 700px;
+    margin: 0 auto 30px;
 }
 
 .eco-detail-row {
@@ -360,6 +382,117 @@ a {
     flex-wrap: wrap;
 }
 
+.eco-orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.eco-order-card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: box-shadow var(--transition), transform var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+}
+
+.eco-order-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+.eco-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.eco-order-id {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 14px;
+}
+
+.eco-order-date {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.eco-order-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.eco-order-package {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.eco-order-package-name {
+    margin: 4px 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.eco-order-package-desc {
+    margin: 6px 0 8px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.eco-order-price {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--primary);
+}
+
+.eco-order-consumer {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.eco-order-consumer p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.eco-order-business {
+    margin-bottom: 16px;
+    flex-grow: 1;
+}
+
+.eco-order-business p {
+    margin: 0;
+    font-size: 13px;
+}
+
+.eco-order-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
 .eco-form-card {
     background: var(--surface);
     border-radius: var(--radius-lg);
@@ -367,6 +500,7 @@ a {
     border: 1px solid var(--border);
     padding: 40px;
     max-width: 580px;
+    margin: 0 auto 30px;
 }
 
 .eco-form-title {
@@ -434,6 +568,11 @@ a {
     .eco-package-content {
         padding: 14px;
     }
+
+    .eco-orders-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -447,5 +586,144 @@ a {
     .eco-btn {
         padding: 9px 16px;
         font-size: 13px;
+    }
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 12.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 7px;
+}
+
+.form-control,
+.form-select {
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text);
+    background: #fff;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.invalid-feedback {
+    color: var(--danger);
+    font-size: 12.5px;
+    margin-top: 5px;
+    display: block;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 0;
+    margin-bottom: 4px;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.form-check-label {
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    margin: 0;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.mb-3 {
+    margin-bottom: 20px !important;
+}
+
+.eco-form-page {
+    min-height: 70vh;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 12px;
+}
+
+.eco-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background: #fff;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.09);
+    z-index: 1000;
+}
+
+.eco-bottom-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 100%;
+    padding: 0 8px;
+}
+
+.eco-bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 1.45rem;
+    line-height: 1;
+    transition: background var(--transition), color var(--transition), transform 0.15s;
+}
+
+.eco-bottom-nav a:hover,
+.eco-bottom-nav a:active {
+    background: var(--primary-soft);
+    color: var(--primary);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .eco-bottom-nav {
+        display: flex;
+        align-items: center;
+    }
+
+    .eco-main {
+        padding-bottom: 82px;
     }
 }

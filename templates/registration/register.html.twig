@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Account – Eco Meal{% endblock %}
+
+{% block body %}
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 70vh;">
+        <div class="eco-form-card" style="max-width: 500px; width: 100%;">
+            <h1 style="font-size: 1.8rem; margin: 0 0 8px 0; text-align: center; color: var(--primary);">Create your account</h1>
+            <p style="text-align: center; color: var(--text-muted); margin: 0 0 28px 0;">Join EcoMeal to start ordering delicious food</p>
+
+            {{ form_start(registrationForm) }}
+                {% if registrationForm.vars.errors %}
+                    <div style="background: #fee; border: 1px solid #fca; border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 20px; color: var(--danger); font-size: 14px;">
+                        ⚠️ {{ form_errors(registrationForm) }}
+                    </div>
+                {% endif %}
+
+                <div style="margin-bottom: 16px;">
+                    {{ form_label(registrationForm.consumer.firstName, 'First Name', {'label_attr': {'style': 'display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); font-size: 14px;'}}) }}
+                    {{ form_widget(registrationForm.consumer.firstName, {'attr': {'class': 'eco-form-input', 'style': 'width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;'}}) }}
+                    {{ form_errors(registrationForm.consumer.firstName) }}
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    {{ form_label(registrationForm.consumer.lastName, 'Last Name', {'label_attr': {'style': 'display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); font-size: 14px;'}}) }}
+                    {{ form_widget(registrationForm.consumer.lastName, {'attr': {'class': 'eco-form-input', 'style': 'width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;'}}) }}
+                    {{ form_errors(registrationForm.consumer.lastName) }}
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    {{ form_label(registrationForm.consumer.phoneNumber, 'Phone Number', {'label_attr': {'style': 'display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); font-size: 14px;'}}) }}
+                    {{ form_widget(registrationForm.consumer.phoneNumber, {'attr': {'class': 'eco-form-input', 'style': 'width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;'}}) }}
+                    {{ form_errors(registrationForm.consumer.phoneNumber) }}
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    {{ form_label(registrationForm.email, 'Email Address', {'label_attr': {'style': 'display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); font-size: 14px;'}}) }}
+                    {{ form_widget(registrationForm.email, {'attr': {'class': 'eco-form-input', 'style': 'width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;', 'placeholder': 'your@email.com'}}) }}
+                    {{ form_errors(registrationForm.email) }}
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    {{ form_label(registrationForm.plainPassword, 'Password', {'label_attr': {'style': 'display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); font-size: 14px;'}}) }}
+                    {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'eco-form-input', 'style': 'width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;', 'placeholder': 'At least 8 characters'}}) }}
+                    {{ form_errors(registrationForm.plainPassword) }}
+                </div>
+
+                <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 8px;">
+                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'style': 'width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);'}}) }}
+                    {{ form_label(registrationForm.agreeTerms, 'I agree to the Terms of Service', {'label_attr': {'style': 'margin: 0; cursor: pointer; font-size: 14px; color: var(--text);'}}) }}
+                </div>
+                {{ form_errors(registrationForm.agreeTerms) }}
+
+                <button type="submit" class="eco-btn eco-btn-primary" style="width: 100%; justify-content: center; font-size: 15px; padding: 12px 20px;">
+                    Create Account
+                </button>
+            {{ form_end(registrationForm) }}
+
+            <div style="margin-top: 20px; text-align: center; padding-top: 20px; border-top: 1px solid var(--border);">
+                <p style="margin: 0; color: var(--text-muted); font-size: 14px;">
+                    Already have an account?
+                    <a href="{{ path('app_login') }}" style="color: var(--primary); font-weight: 600;">Sign in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .eco-form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.08);
+        }
+    </style>
+{% endblock %}

@@ -3,12 +3,12 @@
 {% block title %}New Business – Eco Meal{% endblock %}
 
 {% block body %}
-
     <div class="eco-page-header">
         <h1>New Business</h1>
+        <a href="{{ path('app_business') }}" class="eco-btn eco-btn-ghost">← Back</a>
     </div>
 
-    <div class="eco-form-card">
+    <div class="eco-form-card" style="max-width: 580px;">
         <p class="eco-form-title">Business Details</p>
         {{ form_start(form) }}
         {{ form_row(form.name) }}
@@ -17,11 +17,13 @@
         {{ form_row(form.houseNumber) }}
         {{ form_row(form.phoneNumber) }}
         {{ form_row(form.businessType) }}
-        {{ form_row(form.submit) }}
-        {{ form_end(form) }}
-        <div class="mt-3">
-            <a href="{{ path('app_business') }}" class="eco-btn eco-btn-ghost">Cancel</a>
+        <div style="display: flex; gap: 10px; margin-top: 28px;">
+            {{ form_row(form.submit, {
+                attr: { class: 'eco-btn eco-btn-primary', style: 'flex: 1; margin: 0; border: none; cursor: pointer;' },
+                label: 'Create Business'
+            }) }}
+            <a href="{{ path('app_business') }}" class="eco-btn eco-btn-ghost" style="flex: 1; text-align: center;">Cancel</a>
         </div>
+        {{ form_end(form) }}
     </div>
-
 {% endblock %}

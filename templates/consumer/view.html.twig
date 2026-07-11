@@ -1,32 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello BusinessTypeController!{% endblock %}
+{% block title %}{{ consumer.firstName }} {{ consumer.lastName }} – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="eco-page-header">
+        <h1>{{ consumer.firstName }} {{ consumer.lastName }}</h1>
+        <a href="{% if is_granted('ROLE_ADMIN') %}{{ path('app_consumer') }}{% else %}{{ path('app_package') }}{% endif %}" class="eco-btn eco-btn-ghost">← Back</a>
+    </div>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
+    <div class="eco-detail-card">
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">ID</span>
+            <span class="eco-detail-value">{{ consumer.id }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">First Name</span>
+            <span class="eco-detail-value">{{ consumer.firstName }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Last Name</span>
+            <span class="eco-detail-value">{{ consumer.lastName }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Phone</span>
+            <span class="eco-detail-value">{{ consumer.phoneNumber }}</span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Email</span>
+            <span class="eco-detail-value">{{ consumer.user ? consumer.user.email : '–' }}</span>
+        </div>
 
-    <p>{{ consumer.id }}</p>
-    <p>{{ consumer.firstName }}</p>
-    <p>{{ consumer.lastName }}</p>
-    <p>{{ consumer.phoneNumber }}</p>
+        <div class="eco-detail-actions">
+            {% if is_granted('ROLE_CONSUMER') %}
+                <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
+            {% endif %}
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_consumer_delete', {id: consumer.id}) }}" class="eco-btn eco-btn-danger"
+                   onclick="return confirm('Delete this consumer?')">Delete</a>
+            {% endif %}
+            {% if is_granted('ROLE_CONSUMER') %}
+                <a href="{{ path('app_consumer_delete', {id: consumer.id}) }}" class="eco-btn eco-btn-danger"
+                onclick="return confirm('Are you sure you want to delete your account?')">Delete</a>
+            {% endif %}
 
-    <a href="{{ path('app_consumer') }}">Back</a>
-    <br>
-    <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}">Edit</a>
-    <br>
-    <a href="{{ path('app_consumer_delete', {id: consumer.id}) }}">Delete</a>
-
+        </div>
+    </div>
 {% endblock %}
-

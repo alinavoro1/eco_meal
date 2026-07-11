@@ -17,15 +17,22 @@ class OrderFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('createdAt', DateTimeType::class)
-            ->add('package',EntityType::class,[
+            ->add('createdAt', DateTimeType::class);
+
+        if ($options['include_package']) {
+            $builder->add('package',EntityType::class,[
                 'class'=>Package::class,
                 'choice_label'=>'name'
-            ])
-            ->add('consumer',EntityType::class,[
+            ]);
+        }
+
+        if ($options['include_consumer']) {
+            $builder->add('consumer',EntityType::class,[
                 'class'=>Consumer::class,
-            ])
-            ->add('submit',SubmitType::class);
+            ]);
+        }
+
+        $builder->add('submit',SubmitType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -33,5 +40,7 @@ class OrderFormType extends AbstractType
         $resolver->setDefaults([
             'data_class'=>Order::class
         ]);
+        $resolver->setDefined(['include_package','include_consumer']);
+        $resolver->setDefaults(['include_package' => true, 'include_consumer' => true]);
     }
 }

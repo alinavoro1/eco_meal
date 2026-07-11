@@ -1,29 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello BusinessTypeController!{% endblock %}
+{% block title %}New Business Type – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="eco-page-header">
+        <h1>New Business Type</h1>
+        <a href="{{ path('app_business_type') }}" class="eco-btn eco-btn-ghost">← Back</a>
+    </div>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-
-    <div class="example-wrapper">
+    <div class="eco-form-card">
+        <p class="eco-form-title">Business Type Details</p>
         {{ form_start(form) }}
         {{ form_row(form.name) }}
         {{ form_row(form.submit) }}
         {{ form_end(form) }}
-
-        <a href="{{ path('app_business_type') }}">Cancel</a>
+        <div class="mt-3">
+            <a href="{{ path('app_business_type') }}" class="eco-btn eco-btn-ghost">Cancel</a>
+        </div>
     </div>
 {% endblock %}
-

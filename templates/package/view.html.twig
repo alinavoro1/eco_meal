@@ -5,26 +5,23 @@
 {% block body %}
     <div class="eco-page-header">
         <h1>{{ package.name }}</h1>
+        <a href="{{ path('app_package') }}" class="eco-btn eco-btn-ghost">← Back to Packages</a>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; max-width: 1000px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; max-width: 1000px;" class="eco-package-detail-grid">
         <div>
             {% if package.photo %}
                 <div style="border-radius: var(--radius-lg); overflow: hidden; background: var(--bg); box-shadow: var(--shadow-sm); border: 1px solid var(--border);">
                     <img src="{{ package.photo }}" alt="{{ package.name }}" style="width: 100%; height: auto; display: block;">
                 </div>
             {% else %}
-                <div style="border-radius: var(--radius-lg); aspect-ratio: 1; background: linear-gradient(135deg, var(--primary-soft) 0%, var(--secondary-soft) 100%); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+                <div style="border-radius: var(--radius-lg); aspect-ratio: 4/3; background: linear-gradient(135deg, var(--primary-soft) 0%, var(--secondary-soft) 100%); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
                     <span style="font-size: 4rem;">📦</span>
                 </div>
             {% endif %}
         </div>
 
         <div class="eco-detail-card" style="max-width: none;">
-            <div class="eco-detail-row">
-                <span class="eco-detail-label">ID</span>
-                <span class="eco-detail-value">{{ package.id }}</span>
-            </div>
             <div class="eco-detail-row">
                 <span class="eco-detail-label">Price</span>
                 <span class="eco-detail-value" style="font-size: 1.25rem; color: var(--primary); font-weight: 700;">{{ package.price }} lei</span>
@@ -40,7 +37,11 @@
             <div class="eco-detail-row">
                 <span class="eco-detail-label">Business</span>
                 <span class="eco-detail-value">
-                    <a href="{{ path('app_business_view', {id: package.business.id}) }}" style="color: var(--primary); font-weight: 600; text-decoration: none;">{{ package.business.name }}</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('app_business_view', {id: package.business.id}) }}" style="color: var(--primary); font-weight: 600; text-decoration: none;">{{ package.business.name }}</a>
+                    {% else %}
+                        {{ package.business.name }}
+                    {% endif %}
                 </span>
             </div>
             <div class="eco-detail-row">
@@ -49,18 +50,21 @@
             </div>
 
             <div class="eco-detail-actions">
-                <a href="{{ path('app_business_view', {id: package.business.id}) }}" class="eco-btn eco-btn-ghost">Back</a>
-                <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
-                <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                {% if is_granted('ROLE_CONSUMER') %}
+                    <a href="{{ path('app_order_new', {id: package.id}) }}" class="eco-btn eco-btn-primary">Order Now</a>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN') or (app.user and app.user.getBusiness() and app.user.getBusiness().getId() == package.business.id) %}
+                    <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                    <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                {% endif %}
             </div>
         </div>
     </div>
 
     <style>
         @media (max-width: 768px) {
-            [style*="grid-template-columns: 1fr 1fr"] {
-                grid-template-columns: 1fr !important;
-            }
+            .eco-package-detail-grid { grid-template-columns: 1fr !important; }
         }
     </style>
 {% endblock %}
+

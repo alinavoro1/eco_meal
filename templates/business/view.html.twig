@@ -37,13 +37,33 @@
             <span class="eco-detail-label">Business Type</span>
             <span class="eco-detail-value"><span class="badge badge-violet">{{ business.businessType.name }}</span></span>
         </div>
-        <div class="eco-detail-actions">
-            <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="eco-btn eco-btn-primary">+ Add Package</a>
-            <a href="{{ path('app_business') }}" class="eco-btn eco-btn-ghost">Back</a>
-            <a href="{{ path('app_business_edit', {id: business.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
-            <a href="{{ path('app_business_delete', {id: business.id}) }}" class="eco-btn eco-btn-danger"
-               onclick="return confirm('Delete this business?')">Delete</a>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Account</span>
+            <span class="eco-detail-value">
+                {% if business.user %}
+                    <span class="badge badge-green">✓ {{ business.user.email }}</span>
+                {% else %}
+                    <span class="badge badge-amber">⚠ No account yet</span>
+                {% endif %}
+            </span>
         </div>
+
+        <div class="eco-detail-actions">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="eco-btn eco-btn-primary">+ Add Package</a>
+                <a href="{{ path('app_business_edit', {id: business.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                {% if not business.user %}
+                    <a href="{{ path('app_business_create_account', {id: business.id}) }}" class="eco-btn eco-btn-secondary">🔑 Create Account</a>
+                {% endif %}
+                <a href="{{ path('app_business') }}" class="eco-btn eco-btn-ghost">← Back</a>
+                <a href="{{ path('app_business_delete', {id: business.id}) }}" class="eco-btn eco-btn-danger"
+                   onclick="return confirm('Delete this business?')">Delete</a>
+            {% else %}
+                <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="eco-btn eco-btn-primary">+ Add Package</a>
+                <a href="{{ path('app_business_edit', {id: business.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+            {% endif %}
+        </div>
+
     </div>
 
     <div style="margin-top: 40px;">

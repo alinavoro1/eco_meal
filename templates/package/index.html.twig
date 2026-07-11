@@ -1,66 +1,59 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PackageController!{% endblock %}
+{% block title %}Packages – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-
-    <div class="example-wrapper">
-        <table>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Photo</th>
-                <th>Created</th>
-                <th>Category</th>
-                <th>Business</th>
-            </tr>
-
-            {% for package in packages %}
-
-                <tr>
-
-                    <td>
-                        <a href="{{ path('app_package_view',{
-                            id: package.id
-                        }) }}">
-                            {{ package.id }}
-                        </a>
-                    </td>
-
-                    <td>{{ package.name }}</td>
-                    <td>{{ package.description }}</td>
-                    <td>{{ package.price }}</td>
-
-                    {% if package.photo %}
-                        <td><img src="{{ package.photo }}"
-                                 alt="{{ package.name }}"
-                                 width="100"></td>
-                    {% else %}
-                        <td>No image available.</td>
-                    {% endif %}
-                    <td>{{ package.createdAt|date('Y-m-d H:i') }}</td>
-                    <td>{{ package.category.name }}</td>
-                    <td>{{ package.business.name }}</td>
-
-                </tr>
-
-            {% endfor %}
-
-        </table>
+    <div class="eco-page-header">
+        <h1>All Packages</h1>
+        <a href="{{ path('app_package') }}" class="eco-btn eco-btn-primary">Refresh</a>
     </div>
+
+    {{ form(package_filter_form) }}
+
+    {% if packages|length > 0 %}
+        <div class="eco-packages-grid">
+            {% for package in packages %}
+                <div class="eco-package-card">
+                    {% if package.photo %}
+                        <div class="eco-package-image">
+                            <img src="{{ package.photo }}" alt="{{ package.name }}" />
+                        </div>
+                    {% else %}
+                        <div class="eco-package-image-empty">
+                            <span style="font-size: 2.5rem;">📦</span>
+                        </div>
+                    {% endif %}
+
+                    <div class="eco-package-content">
+                        <h3 class="eco-package-name">{{ package.name }}</h3>
+                        <p class="eco-package-description">{{ package.description }}</p>
+
+                        <div class="eco-package-meta">
+                            <span class="eco-package-price">{{ package.price }} lei</span>
+                            <span class="badge badge-amber">{{ package.category.name }}</span>
+                        </div>
+
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+                            from <strong>{{ package.business.name }}</strong>
+                        </div>
+
+                        <div class="eco-package-actions" style="margin-top: 12px;">
+                            <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
+                            {% if is_granted('ROLE_CONSUMER') %}
+                                <a href="{{ path('app_order_new', {id: package.id}) }}" class="eco-btn eco-btn-secondary">Order</a>
+                            {% endif %}
+                            {% if is_granted('ROLE_ADMIN') or (app.user and app.user.getBusiness() and app.user.getBusiness().getId() == package.business.id) %}
+                                <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                                <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+            📦 No packages available.
+        </div>
+    {% endif %}
 {% endblock %}

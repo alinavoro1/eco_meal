@@ -1,36 +1,48 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CategoryController!{% endblock %}
+{% block title %}Categories – Eco Meal{% endblock %}
 
 {% block body %}
-    <style>
-        .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-        .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-    </style>
+    <div class="eco-page-header">
+        <h1>Categories</h1>
+        <a href="{{ path('app_category_new') }}" class="eco-btn eco-btn-primary">+ New Category</a>
+    </div>
 
-    <div class="example-wrapper">
-        <a href="{{ path('app_category_new')  }}">Create new category</a>
-        <br>
-        <table>
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            {% for category in categories %}
+    <div class="eco-table-wrap">
+        <div style="overflow-x:auto;">
+            <table class="eco-table">
+                <thead>
                 <tr>
-                    <td>
-                        <a href="{{ path('app_category_view', {
-                            id: category.id
-                        }) }}">{{ category.id }}</a>
-                    </td>
-                    <td>{{ category.name }}</td>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Actions</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td class="id-cell">{{ category.id }}</td>
+                        <td>
+                            <a href="{{ path('app_category_view', {id: category.id}) }}" class="table-link">
+                                {{ category.name }}
+                            </a>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <a href="{{ path('app_category_edit', {id: category.id}) }}" class="eco-btn eco-btn-ghost" style="padding: 6px 14px; font-size: 13px;">Edit</a>
+                                <a href="{{ path('app_category_delete', {id: category.id}) }}" class="eco-btn eco-btn-danger" style="padding: 6px 14px; font-size: 13px;" onclick="return confirm('Delete this category?')">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3">
+                            <div class="eco-empty">No categories found.</div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

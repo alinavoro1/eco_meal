@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 
+use App\Dto\PackageSearchFilter;
 use App\Entity\Package;
+use App\Form\PackageFiltersType;
 use App\Form\PackageFormType;
 use App\Repository\PackageRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,37 +17,36 @@ use Symfony\Component\Routing\Attribute\Route;
 final class PackageController extends AbstractController
 {
     #[Route('/package', name: 'app_package')]
-    public function index(PackageRepository $packageRepository): Response
+    public function index(Request $request, PackageRepository $packageRepository): Response
     {
-        $packages = $packageRepository->findAll();
+        $user = $this->getUser();
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $packages = $packageRepository->findAll();
+        } elseif ($user && $user->getBusiness()) {
+            $packages = $packageRepository->findBy(['business' => $user->getBusiness()]);
+        } else {
+            $packages = $packageRepository->findAll();
+        }
+        $filter = new PackageSearchFilter();
+        $form = $this->createForm(PackageFiltersType::class, $filter);
+        $form->handleRequest($request);
+
+
 
         return $this->render('package/index.html.twig', [
-            'packages' => $packages,
+            'packages' => $packageRepository->findByFilter($filter),
+            'package_filter_form' => $form->createView(),
         ]);
     }
 
-//    #[Route('/package/new', name: 'app_package_new', methods: ['GET', 'POST'])]
-//    public function new(Request $request, EntityManagerInterface $entityManager): Response
-//    {
-//        $package = new Package();
-//
-//        $form = $this->createForm(PackageFormType::class, $package);
-//        $form->handleRequest($request);
-//
-//        if($form->isSubmitted() && $form->isValid()) {
-//            $entityManager->persist($package);
-//            $entityManager->flush();
-//            return $this->redirectToRoute('app_package');
-//        }
-//
-//        return $this->render('package/new.html.twig', [
-//            'form' => $form,
-//        ]);
-//    }
-
     #[Route('/package/{id}/edit', name: 'app_package_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request,Package $package, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Package $package, EntityManagerInterface $entityManager): Response
     {
+        if (!($this->isGranted('ROLE_ADMIN') || ($this->getUser() && $this->getUser()->getBusiness() && $this->getUser()->getBusiness()->getId() === $package->getBusiness()->getId()))) {
+            throw $this->createAccessDeniedException();
+        }
+
         $form = $this->createForm(PackageFormType::class, $package);
         $form->handleRequest($request);
 
@@ -72,6 +73,10 @@ final class PackageController extends AbstractController
     #[Route('/package/delete/{id}', name: 'app_package_delete', methods: ['GET'])]
     public function delete(Package $package, EntityManagerInterface $entityManager): Response
     {
+        if (!($this->isGranted('ROLE_ADMIN') || ($this->getUser() && $this->getUser()->getBusiness() && $this->getUser()->getBusiness()->getId() === $package->getBusiness()->getId()))) {
+            throw $this->createAccessDeniedException();
+        }
+
         $entityManager->remove($package);
         $entityManager->flush();
         return $this->redirectToRoute('app_package');
