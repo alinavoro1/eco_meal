@@ -50,8 +50,6 @@
 
         <div class="eco-detail-actions">
             {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="eco-btn eco-btn-primary">+ Add Package</a>
-                <a href="{{ path('app_business_edit', {id: business.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
                 {% if not business.user %}
                     <a href="{{ path('app_business_create_account', {id: business.id}) }}" class="eco-btn eco-btn-secondary">🔑 Create Account</a>
                 {% endif %}
@@ -94,8 +92,10 @@
 
                             <div class="eco-package-actions">
                                 <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
-                                <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
-                                <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                                {% if app.user and app.user.getBusiness() and app.user.getBusiness().getId() == business.id %}
+                                    <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                                    <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

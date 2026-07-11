@@ -26,23 +26,28 @@
             <span class="eco-detail-value">{{ consumer.phoneNumber }}</span>
         </div>
         <div class="eco-detail-row">
-            <span class="eco-detail-label">Email</span>
-            <span class="eco-detail-value">{{ consumer.user ? consumer.user.email : '–' }}</span>
+            <span class="eco-detail-label">Account</span>
+            <span class="eco-detail-value">
+                {% if consumer.user %}
+                    <span class="badge badge-green">✓ {{ consumer.user.email }}</span>
+                {% else %}
+                    <span class="badge badge-amber">⚠ No account yet</span>
+                {% endif %}
+            </span>
         </div>
 
         <div class="eco-detail-actions">
-            {% if is_granted('ROLE_CONSUMER') %}
-                <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
-            {% endif %}
             {% if is_granted('ROLE_ADMIN') %}
+                {% if not consumer.user %}
+                    <a href="{{ path('app_consumer_create_account', {id: consumer.id}) }}" class="eco-btn eco-btn-secondary">🔑 Create Account</a>
+                {% endif %}
                 <a href="{{ path('app_consumer_delete', {id: consumer.id}) }}" class="eco-btn eco-btn-danger"
                    onclick="return confirm('Delete this consumer?')">Delete</a>
-            {% endif %}
-            {% if is_granted('ROLE_CONSUMER') %}
+            {% else %}
+                <a href="{{ path('app_consumer_edit', {id: consumer.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
                 <a href="{{ path('app_consumer_delete', {id: consumer.id}) }}" class="eco-btn eco-btn-danger"
-                onclick="return confirm('Are you sure you want to delete your account?')">Delete</a>
+                   onclick="return confirm('Are you sure you want to delete your account?')">Delete Account</a>
             {% endif %}
-
         </div>
     </div>
 {% endblock %}

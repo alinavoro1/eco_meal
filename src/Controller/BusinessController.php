@@ -16,28 +16,46 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
+use App\Dto\BusinessSearchFilter;
+use App\Form\BusinessFiltersType;
+
 final class BusinessController extends AbstractController
 {
     #[Route('/business', name: 'app_business')]
-    public function index(BusinessRepository $businessRepository): Response
+    public function index(Request $request, BusinessRepository $businessRepository): Response
     {
-        $businesses = $businessRepository->findAll();
+        $filter = new BusinessSearchFilter();
+        $form = $this->createForm(BusinessFiltersType::class, $filter, [
+            'method' => 'GET',
+            'cities' => $businessRepository->findUniqueCities(),
+        ]);
+        $form->handleRequest($request);
 
         return $this->render('business/index.html.twig', [
-            'businesses' => $businesses,
+            'businesses' => $businessRepository->findByFilter($filter),
+            'business_filter_form' => $form->createView(),
         ]);
     }
 
     #[Route('/business/new', name: 'app_business_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $business = new Business();
 
-        $form = $this->createForm(BusinessFormType::class, $business);
+        $form = $this->createForm(BusinessFormType::class, $business, [
+            'is_create' => true,
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user = new User();
+            $user->setEmail($form->get('email')->getData());
+            $user->setRoles(['ROLE_BUSINESS']);
+            $user->setPassword($passwordHasher->hashPassword($user, $form->get('password')->getData()));
+            $user->setBusiness($business);
+
             $entityManager->persist($business);
+            $entityManager->persist($user);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_business_view', ['id' => $business->getId()]);
@@ -46,15 +64,12 @@ final class BusinessController extends AbstractController
             'form' => $form,
         ]);
     }
-
     #[Route('/business/{id}/edit', name: 'app_business_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request,Business $business, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Business $business, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            $user = $this->getUser();
-            if (!$user || !$user->getBusiness() || $user->getBusiness()->getId() !== $business->getId()) {
-                throw $this->createAccessDeniedException();
-            }
+        $user = $this->getUser();
+        if (!$user || !$user->getBusiness() || $user->getBusiness()->getId() !== $business->getId()) {
+            throw $this->createAccessDeniedException();
         }
 
         $form = $this->createForm(BusinessFormType::class, $business);
@@ -72,11 +87,9 @@ final class BusinessController extends AbstractController
     #[Route('/business/{id}/add_package', name: 'app_business_add_package', methods: ['GET', 'POST'])]
     public function addPackage(Request $request, Business $business, EntityManagerInterface $entityManager): Response
     {
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            $user = $this->getUser();
-            if (!$user || !$user->getBusiness() || $user->getBusiness()->getId() !== $business->getId()) {
-                throw $this->createAccessDeniedException();
-            }
+        $user = $this->getUser();
+        if (!$user || !$user->getBusiness() || $user->getBusiness()->getId() !== $business->getId()) {
+            throw $this->createAccessDeniedException();
         }
 
         $package = new Package();

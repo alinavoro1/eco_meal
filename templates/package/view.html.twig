@@ -53,7 +53,7 @@
                 {% if is_granted('ROLE_CONSUMER') %}
                     <a href="{{ path('app_order_new', {id: package.id}) }}" class="eco-btn eco-btn-primary">Order Now</a>
                 {% endif %}
-                {% if is_granted('ROLE_ADMIN') or (app.user and app.user.getBusiness() and app.user.getBusiness().getId() == package.business.id) %}
+                {% if app.user and app.user.getBusiness() and app.user.getBusiness().getId() == package.business.id %}
                     <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
                     <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
                 {% endif %}

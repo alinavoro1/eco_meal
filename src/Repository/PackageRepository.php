@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Dto\PackageSearchFilter;
 use App\Entity\Package;
+use App\Entity\Business;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,16 +18,31 @@ class PackageRepository extends ServiceEntityRepository
         parent::__construct($registry, Package::class);
     }
 
-    public function findByFilter(PackageSearchFilter $filter): array
+    public function findByFilter(PackageSearchFilter $filter, ?Business $business = null): array
     {
         $qb = $this->createQueryBuilder('p')
             ->select('p')
             ->leftJoin('p.category', 'c')
-            ->addSelect('c');
+            ->addSelect('c')
+            ->leftJoin('p.business', 'b')
+            ->addSelect('b');
+
+        if ($business) {
+            $qb->andWhere("p.business = :business")
+               ->setParameter('business', $business);
+        } elseif ($filter->business) {
+            $qb->andWhere("p.business = :filterBusiness")
+               ->setParameter('filterBusiness', $filter->business);
+        }
+
+        if ($filter->city) {
+            $qb->andWhere("b.city LIKE :city")
+               ->setParameter('city', '%'.$filter->city.'%');
+        }
 
         if($filter->name){
-            $qb->andWhere("p.name LIKE :name")
-                ->setParameter('name', '%'.$filter->name.'%');
+            $qb->andWhere("p.name LIKE :searchWord OR p.description LIKE :searchWord")
+                ->setParameter('searchWord', '%'.$filter->name.'%');
         }
         if($filter->minPrice){
             $qb->andWhere("p.price >= :minPrice")

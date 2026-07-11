@@ -12,30 +12,39 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+use App\Dto\OrderSearchFilter;
+use App\Form\OrderFiltersType;
+
 final class OrderController extends AbstractController
 {
     #[Route('/order', name: 'app_order')]
-    public function index(OrderRepository $orderRepository): Response
+    public function index(Request $request, OrderRepository $orderRepository): Response
     {
         $user = $this->getUser();
+        $consumerContext = null;
+        $businessContext = null;
 
         if ($this->isGranted('ROLE_ADMIN')) {
-            $orders = $orderRepository->findAll();
+            // Admin sees all
         } elseif ($user && $user->getConsumer()) {
-            $orders = $orderRepository->findBy(['consumer' => $user->getConsumer()]);
+            $consumerContext = $user->getConsumer();
         } elseif ($user && $user->getBusiness()) {
-            $orders = $orderRepository->createQueryBuilder('o')
-                ->join('o.package', 'p')
-                ->where('p.business = :b')
-                ->setParameter('b', $user->getBusiness())
-                ->getQuery()
-                ->getResult();
-        } else {
-            $orders = [];
+            $businessContext = $user->getBusiness();
         }
+
+        $filter = new OrderSearchFilter();
+        $form = $this->createForm(OrderFiltersType::class, $filter, [
+            'method' => 'GET',
+            'show_business' => $businessContext === null,
+            'show_consumer' => $consumerContext === null,
+        ]);
+        $form->handleRequest($request);
+
+        $orders = $orderRepository->findByFilter($filter, $consumerContext, $businessContext);
 
         return $this->render('order/index.html.twig', [
             'orders' => $orders,
+            'order_filter_form' => $form->createView(),
         ]);
     }
     #[Route('/order/new/{id?}', name: 'app_order_new', methods: ['GET', 'POST'])]
@@ -87,19 +96,7 @@ final class OrderController extends AbstractController
     #[Route('/order/{id}/edit', name: 'app_order_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Order $order, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
-        $form = $this->createForm(OrderFormType::class, $order);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            return $this->redirectToRoute('app_order_view', ['id' => $order->getId()]);
-        }
-
-        return $this->render('order/edit.html.twig', [
-            'form' => $form,
-        ]);
+        throw $this->createAccessDeniedException();
     }
 
     #[Route('/order/{id}', name: 'app_order_view')]
@@ -120,14 +117,24 @@ final class OrderController extends AbstractController
         ]);
     }
 
-    #[Route('order/delete/{id}', name: 'app_order_delete', methods: ['GET'])]
+    #[Route('/order/delete/{id}', name: 'app_order_delete', methods: ['GET'])]
     public function delete(Order $order, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        $user = $this->getUser();
+        if (!$user) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $isConsumerOwner = $user->getConsumer() && $order->getConsumer() && $order->getConsumer()->getId() === $user->getConsumer()->getId();
+        $isBusinessOwner = $user->getBusiness() && $order->getPackage() && $order->getPackage()->getBusiness() && $order->getPackage()->getBusiness()->getId() === $user->getBusiness()->getId();
+
+        if (!$isConsumerOwner && !$isBusinessOwner) {
+            throw $this->createAccessDeniedException();
+        }
 
         $entityManager->remove($order);
         $entityManager->flush();
+
         return $this->redirectToRoute('app_order');
     }
-
 }

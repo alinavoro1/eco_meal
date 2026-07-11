@@ -100,6 +100,12 @@
             🌿 EcoMeal <span class="brand-dot"></span>
         </a>
 
+        {% if app.user %}
+            <a href="{{ path('app_logout') }}" class="mobile-logout-btn" onclick="return confirm('Are you sure you want to log out?');" title="Logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        {% endif %}
+
         <nav>
             <ul class="eco-nav" id="eco-nav">
                 {% if app.user %}
@@ -124,7 +130,7 @@
                             <li><a href="{{ path('app_consumer_view', {id: app.user.getConsumer().getId()}) }}"><i class="bi bi-person-circle nav-icon"></i> My Account</a></li>
                         {% endif %}
                     {% endif %}
-                    <li class="nav-logout"><a href="{{ path('app_logout') }}"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a></li>
+                    <li class="nav-logout"><a href="{{ path('app_logout') }}" onclick="return confirm('Sigur doriți să vă deconectați?');"><i class="bi bi-box-arrow-right nav-icon"></i> Logout</a></li>
                 {% else %}
                     <li><a href="{{ path('app_login') }}"><i class="bi bi-key nav-icon"></i> Login</a></li>
                     <li><a href="{{ path('app_register') }}"><i class="bi bi-person-plus nav-icon"></i> Register</a></li>
@@ -144,33 +150,31 @@
 <nav class="eco-bottom-nav">
     <div class="eco-bottom-nav-inner">
         {% if is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('app_home') }}" title="Home"><i class="bi bi-house"></i></a>
-            <a href="{{ path('app_business') }}" title="Businesses"><i class="bi bi-building"></i></a>
-            <a href="{{ path('app_package') }}" title="Packages"><i class="bi bi-box-seam"></i></a>
-            <a href="{{ path('app_order') }}" title="Orders"><i class="bi bi-receipt"></i></a>
-            <a href="{{ path('app_profile') }}" title="My Account"><i class="bi bi-person-circle"></i></a>
-            <a href="{{ path('app_logout') }}" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+            <a href="{{ path('app_business') }}"><div class="icon-bubble"><i class="bi bi-building"></i></div><span class="nav-text">Businesses</span></a>
+            <a href="{{ path('app_package') }}"><div class="icon-bubble"><i class="bi bi-box-seam"></i></div><span class="nav-text">Packages</span></a>
+            <a href="{{ path('app_home') }}" class="nav-home-center"><div class="icon-bubble"><i class="bi bi-house"></i></div><span class="nav-text">Home</span></a>
+            <a href="{{ path('app_order') }}"><div class="icon-bubble"><i class="bi bi-receipt"></i></div><span class="nav-text">Orders</span></a>
+            <a href="{{ path('app_profile') }}"><div class="icon-bubble"><i class="bi bi-person-circle"></i></div><span class="nav-text">Profile</span></a>
         {% elseif is_granted('ROLE_BUSINESS') and app.user.getBusiness() %}
-            <a href="{{ path('app_business_view', {id: app.user.getBusiness().getId()}) }}" title="Home"><i class="bi bi-house"></i></a>
-            <a href="{{ path('app_package') }}" title="Packages"><i class="bi bi-box-seam"></i></a>
-            <a href="{{ path('app_order') }}" title="Orders"><i class="bi bi-receipt"></i></a>
-            <a href="{{ path('app_business_view', {id: app.user.getBusiness().getId()}) }}" title="My Account"><i class="bi bi-person-circle"></i></a>
-            <a href="{{ path('app_logout') }}" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
-        {% elseif is_granted('ROLE_CONSUMER') %}
-            <a href="{{ path('app_package') }}" title="Home"><i class="bi bi-house"></i></a>
-            <a href="{{ path('app_order') }}" title="My Orders"><i class="bi bi-receipt"></i></a>
+            <a href="{{ path('app_package') }}"><div class="icon-bubble"><i class="bi bi-box-seam"></i></div><span class="nav-text">Packages</span></a>
+            <a href="{{ path('app_business_view', {id: app.user.getBusiness().getId()}) }}" class="nav-home-center"><div class="icon-bubble"><i class="bi bi-house"></i></div><span class="nav-text">Home</span></a>
+            <a href="{{ path('app_order') }}"><div class="icon-bubble"><i class="bi bi-receipt"></i></div><span class="nav-text">Orders</span></a>
+        {% elseif is_granted('ROLE_CONSUMER') or app.user.getConsumer() %}
+            <a href="{{ path('app_order') }}"><div class="icon-bubble"><i class="bi bi-receipt"></i></div><span class="nav-text">Orders</span></a>
+            <a href="{{ path('app_package') }}" class="nav-home-center"><div class="icon-bubble"><i class="bi bi-house"></i></div><span class="nav-text">Home</span></a>
             {% if app.user.getConsumer() %}
-                <a href="{{ path('app_consumer_view', {id: app.user.getConsumer().getId()}) }}" title="My Account"><i class="bi bi-person-circle"></i></a>
+                <a href="{{ path('app_consumer_view', {id: app.user.getConsumer().getId()}) }}"><div class="icon-bubble"><i class="bi bi-person-circle"></i></div><span class="nav-text">Profile</span></a>
+            {% else %}
+                <a href="{{ path('app_profile') }}"><div class="icon-bubble"><i class="bi bi-person-circle"></i></div><span class="nav-text">Profile</span></a>
             {% endif %}
-            <a href="{{ path('app_logout') }}" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
         {% endif %}
     </div>
 </nav>
 {% else %}
 <nav class="eco-bottom-nav">
     <div class="eco-bottom-nav-inner">
-        <a href="{{ path('app_login') }}" title="Login"><i class="bi bi-key"></i></a>
-        <a href="{{ path('app_register') }}" title="Register"><i class="bi bi-person-plus"></i></a>
+        <a href="{{ path('app_login') }}"><div class="icon-bubble"><i class="bi bi-key"></i></div><span class="nav-text">Login</span></a>
+        <a href="{{ path('app_register') }}"><div class="icon-bubble"><i class="bi bi-person-plus"></i></div><span class="nav-text">Register</span></a>
     </div>
 </nav>
 {% endif %}

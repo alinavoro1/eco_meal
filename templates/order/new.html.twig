@@ -41,11 +41,11 @@
             {% endif %}
 
             <div style="display: flex; gap: 10px; margin-top: 24px;">
-                {{ form_row(form.submit, {
+                {{ form_widget(form.submit, {
                     attr: { class: 'eco-btn eco-btn-primary', style: 'flex: 1; margin: 0; border: none; cursor: pointer;' },
                     label: 'Place Order'
                 }) }}
-                <a href="{{ path('app_order') }}" class="eco-btn eco-btn-ghost" style="flex: 1; text-align: center;">Cancel</a>
+                <a href="{{ path('app_order') }}" class="eco-btn eco-btn-cancel" style="flex: 1; text-align: center; display: inline-flex; justify-content: center; align-items: center;">Cancel</a>
             </div>
         {{ form_end(form) }}
     </div>

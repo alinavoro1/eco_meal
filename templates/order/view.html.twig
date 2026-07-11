@@ -38,12 +38,9 @@
                 <span style="font-size: 13px; color: var(--text-muted);">{{ order.consumer.phoneNumber }}</span>
             </span>
         </div>
-
-        <div class="eco-detail-actions">
-            {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('app_order_edit', {id: order.id}) }}" class="eco-btn eco-btn-primary">Edit</a>
-                <a href="{{ path('app_order_delete', {id: order.id}) }}" class="eco-btn eco-btn-danger"
-                   onclick="return confirm('Delete this order?')">Delete</a>
+        <div class="eco-detail-actions" style="margin-top: 24px; display: flex; gap: 12px;">
+            {% if (app.user and app.user.consumer and order.consumer and app.user.consumer.id == order.consumer.id) or (app.user and app.user.business and order.package and order.package.business and app.user.business.id == order.package.business.id) %}
+                <a href="{{ path('app_order_delete', {id: order.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Cancel this order?')">Cancel Order</a>
             {% endif %}
         </div>
     </div>
