@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ConsumerRepository;
+use App\Entity\Business;
+use App\Entity\Category;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,9 +35,19 @@ class Consumer
     #[ORM\OneToOne(mappedBy: 'consumer', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
+    #[ORM\ManyToMany(targetEntity: Business::class)]
+    #[ORM\JoinTable(name: 'consumer_favorite_business')]
+    private Collection $favoriteBusinesses;
+
+    #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[ORM\JoinTable(name: 'consumer_preferred_category')]
+    private Collection $preferredCategories;
+
     public function __construct()
     {
         $this->orders = new ArrayCollection();
+        $this->favoriteBusinesses = new ArrayCollection();
+        $this->preferredCategories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -121,18 +133,51 @@ class Consumer
 
     public function setUser(?User $user): static
     {
-        // unset the owning side of the relation if necessary
         if ($user === null && $this->user !== null) {
             $this->user->setConsumer(null);
         }
 
-        // set the owning side of the relation if necessary
         if ($user !== null && $user->getConsumer() !== $this) {
             $user->setConsumer($this);
         }
 
         $this->user = $user;
 
+        return $this;
+    }
+
+    public function getFavoriteBusinesses(): Collection
+    {
+        return $this->favoriteBusinesses;
+    }
+
+    public function hasFavoriteBusiness(Business $business): bool
+    {
+        return $this->favoriteBusinesses->contains($business);
+    }
+
+    public function addFavoriteBusiness(Business $business): static
+    {
+        if (!$this->favoriteBusinesses->contains($business)) {
+            $this->favoriteBusinesses->add($business);
+        }
+        return $this;
+    }
+
+    public function removeFavoriteBusiness(Business $business): static
+    {
+        $this->favoriteBusinesses->removeElement($business);
+        return $this;
+    }
+
+    public function getPreferredCategories(): Collection
+    {
+        return $this->preferredCategories;
+    }
+
+    public function setPreferredCategories(Collection $categories): static
+    {
+        $this->preferredCategories = $categories;
         return $this;
     }
 }

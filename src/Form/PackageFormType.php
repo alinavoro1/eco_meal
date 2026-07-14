@@ -22,10 +22,22 @@ class PackageFormType extends AbstractType
             ->add('name', TextType::class)
             ->add('description', TextType::class)
             ->add('price', NumberType::class)
-            ->add('photo', UrlType::class, [
-                'label' => 'Photo URL'
+            ->add('photo', \Symfony\Component\Form\Extension\Core\Type\FileType::class, [
+                'label' => 'Photo (Image file)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image (JPEG/PNG/WebP)',
+                    ])
+                ],
             ])
-            ->add('createdAt', DateTimeType::class)
             ->add('category', EntityType::class, [
                 'class' => Category::class,
                 'choice_label' => 'name'

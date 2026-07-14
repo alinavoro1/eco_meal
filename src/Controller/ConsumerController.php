@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Consumer;
+use App\Entity\Business;
 use App\Entity\User;
 use App\Form\ConsumerFormType;
 use App\Form\ConsumerAccountFormType;
@@ -79,7 +80,7 @@ final class ConsumerController extends AbstractController
         ]);
     }
 
-    #[Route('/consumer/{id}', name: 'app_consumer_view', methods: ['GET'])]
+    #[Route('/consumer/{id}', name: 'app_consumer_view', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function view(int $id, ConsumerRepository $consumerRepository, Security $security): Response
     {
         $consumer = $consumerRepository->find($id);
@@ -139,6 +140,56 @@ final class ConsumerController extends AbstractController
         return $this->render('consumer/create_account.html.twig', [
             'form' => $form,
             'consumer' => $consumer,
+        ]);
+    }
+
+    #[Route('/consumer/favorite/{id}', name: 'app_consumer_favorite_toggle', methods: ['POST'])]
+    public function toggleFavorite(Request $request, Business $business, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        $consumer = $user ? $user->getConsumer() : null;
+
+        if (!$consumer) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($consumer->hasFavoriteBusiness($business)) {
+            $consumer->removeFavoriteBusiness($business);
+        } else {
+            $consumer->addFavoriteBusiness($business);
+        }
+
+        $em->flush();
+
+        $redirectPackageId = $request->query->get('redirect_package_id');
+        if ($redirectPackageId) {
+            return $this->redirectToRoute('app_package_view', ['id' => $redirectPackageId]);
+        }
+
+        return $this->redirect($this->generateUrl('app_business_view', ['id' => $business->getId()]));
+    }
+
+    #[Route('/consumer/preferences', name: 'app_consumer_preferences')]
+    public function preferences(Request $request, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        $consumer = $user ? $user->getConsumer() : null;
+
+        if (!$consumer) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $form = $this->createForm(\App\Form\ConsumerPreferencesType::class, $consumer);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Preferences saved!');
+            return $this->redirectToRoute('app_consumer_preferences');
+        }
+
+        return $this->render('consumer/preferences.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 }

@@ -9,6 +9,7 @@ use App\Form\BusinessAccountFormType;
 use App\Form\BusinessFormType;
 use App\Form\PackageFormType;
 use App\Repository\BusinessRepository;
+use App\Repository\SaleRecordRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -164,5 +165,82 @@ final class BusinessController extends AbstractController
         $entityManager->remove($business);
         $entityManager->flush();
         return $this->redirectToRoute('app_business');
+    }
+
+    #[Route('/business/{id}/stats', name: 'app_business_stats')]
+    public function stats(Request $request,Business $business, SaleRecordRepository $saleRecordRepository): Response
+    {
+        $user = $this->getUser();
+        if (!$this->isGranted('ROLE_ADMIN') &&
+            (!$user || !$user->getBusiness() || $user->getBusiness()->getId() !== $business->getId())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $period = $request->query->get('period', 'all_time');
+        $allowedPeriods = ['all_time', 'last_month', 'last_week', 'today'];
+        if (!in_array($period, $allowedPeriods)) {
+            $period = 'all_time';
+        }
+
+        $records = $saleRecordRepository->getRecordsByPeriod($business, $period);
+
+        $fulfilledRecords = array_filter($records, function($r) {
+            return $r->getStatus() === 'fulfilled';
+        });
+
+        $cancelledRecords = array_filter($records, function($r) {
+            return $r->getStatus() === 'cancelled';
+        });
+
+        $totalRevenue = 0.0;
+        foreach ($fulfilledRecords as $r) {
+            $totalRevenue += $r->getPackagePrice();
+        }
+        $totalOrders = count($fulfilledRecords);
+        $totalCancelled = count($cancelledRecords);
+
+        $monthlyGrouped = [];
+        foreach ($fulfilledRecords as $r) {
+            $month = $r->getOrderedAt()->format('Y-m');
+            if (!isset($monthlyGrouped[$month])) {
+                $monthlyGrouped[$month] = 0.0;
+            }
+            $monthlyGrouped[$month] += $r->getPackagePrice();
+        }
+        $monthlyRevenue = [];
+        foreach ($monthlyGrouped as $m => $tot) {
+            $monthlyRevenue[] = ['month' => $m, 'total' => $tot];
+        }
+
+        $categoryGrouped = [];
+        foreach ($fulfilledRecords as $r) {
+            $cat = $r->getCategoryName() ?? 'Unknown';
+            if (!isset($categoryGrouped[$cat])) {
+                $categoryGrouped[$cat] = ['total' => 0, 'revenue' => 0.0];
+            }
+            $categoryGrouped[$cat]['total']++;
+            $categoryGrouped[$cat]['revenue'] += $r->getPackagePrice();
+        }
+        $categoryStats = [];
+        foreach ($categoryGrouped as $name => $data) {
+            $categoryStats[] = [
+                'categoryName' => $name,
+                'total' => $data['total'],
+                'revenue' => $data['revenue']
+            ];
+        }
+        usort($categoryStats, function($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
+
+        return $this->render('business/stats.html.twig', [
+            'business'       => $business,
+            'monthlyRevenue' => $monthlyRevenue,
+            'categoryStats'  => $categoryStats,
+            'totalRevenue'   => $totalRevenue,
+            'totalOrders'    => $totalOrders,
+            'totalCancelled' => $totalCancelled,
+            'currentPeriod'  => $period,
+        ]);
     }
 }

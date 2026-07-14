@@ -38,9 +38,47 @@
                 <span style="font-size: 13px; color: var(--text-muted);">{{ order.consumer.phoneNumber }}</span>
             </span>
         </div>
-        <div class="eco-detail-actions" style="margin-top: 24px; display: flex; gap: 12px;">
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Pickup Location</span>
+            <span class="eco-detail-value">
+                {{ order.package.business.street }} {{ order.package.business.houseNumber }},
+                {{ order.package.business.city }}
+            </span>
+        </div>
+        <div class="eco-detail-row">
+            <span class="eco-detail-label">Restaurant Phone</span>
+            <span class="eco-detail-value">
+                <a href="tel:{{ order.package.business.phoneNumber }}" style="color: var(--primary); font-weight: 600;">
+                    {{ order.package.business.phoneNumber }}
+                </a>
+            </span>
+        </div>
+        {% set now_timestamp = "now"|date("U") %}
+        {% set limit_timestamp = order.createdAt|date_modify("+2 hours")|date("U") %}
+
+        {% if app.user and app.user.consumer and order.consumer and app.user.consumer.id == order.consumer.id %}
+            {% if limit_timestamp > now_timestamp %}
+                <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b45309; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-clock-history" style="font-size: 18px;"></i>
+                    You have until {{ order.createdAt|date_modify("+2 hours")|date('H:i') }} to pick up your package!
+                </div>
+            {% else %}
+                <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b91c1c; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-x-circle" style="font-size: 18px;"></i>
+                    The pickup deadline has passed.
+                </div>
+            {% endif %}
+        {% endif %}
+        <div class="eco-detail-actions" style="margin-top: 24px; display: flex; gap: 12px; align-items: center;">
             {% if (app.user and app.user.consumer and order.consumer and app.user.consumer.id == order.consumer.id) or (app.user and app.user.business and order.package and order.package.business and app.user.business.id == order.package.business.id) %}
                 <a href="{{ path('app_order_delete', {id: order.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Cancel this order?')">Cancel Order</a>
+            {% endif %}
+            {% if app.user and app.user.business and order.package and order.package.business and app.user.business.id == order.package.business.id %}
+                <form method="POST" action="{{ path('app_order_fulfill', {id: order.id}) }}" style="margin: 0; display: inline-block;">
+                    <button type="submit" class="eco-btn eco-btn-primary" onclick="return confirm('Mark this order as fulfilled?')" style="background: linear-gradient(135deg,#10b981,#059669); border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="bi bi-check-circle-fill"></i> Mark as Fulfilled
+                    </button>
+                </form>
             {% endif %}
         </div>
     </div>

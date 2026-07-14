@@ -54,4 +54,23 @@ class OrderRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function deleteExpiredOrders(): int
+    {
+        $threshold = new \DateTimeImmutable('-2 hours');
+        $expiredOrders = $this->createQueryBuilder('o')
+            ->where('o.fulfilled_at IS NULL')
+            ->andWhere('o.created_at < :threshold')
+            ->setParameter('threshold', $threshold)
+            ->getQuery()
+            ->getResult();
+
+        $em = $this->getEntityManager();
+        foreach ($expiredOrders as $order) {
+            $em->remove($order);
+        }
+        $em->flush();
+
+        return count($expiredOrders);
+    }
 }

@@ -25,6 +25,9 @@ class Order
     #[ORM\JoinColumn(nullable: false)]
     private ?Consumer $consumer = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $fulfilled_at = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,5 +67,21 @@ class Order
         $this->consumer = $consumer;
 
         return $this;
+    }
+
+    public function getFulfilledAt(): ?\DateTimeImmutable
+    {
+        return $this->fulfilled_at;
+    }
+
+    public function setFulfilledAt(?\DateTimeImmutable $dt): static
+    {
+        $this->fulfilled_at = $dt;
+        return $this;
+    }
+
+    public function isFulfilled(): bool
+    {
+        return $this->fulfilled_at !== null;
     }
 }

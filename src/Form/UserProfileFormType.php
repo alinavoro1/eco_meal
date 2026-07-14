@@ -36,6 +36,15 @@ class UserProfileFormType extends AbstractType
                     ),
                 ],
             ])
+            ->add('currentPassword', PasswordType::class, [
+                'label' => 'Current Password (required to save changes)',
+                'mapped' => false,
+                'required' => true,
+                'attr' => [
+                    'autocomplete' => 'current-password',
+                    'placeholder' => 'Enter current password to authorize changes',
+                ],
+            ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Update Profile',
             ])

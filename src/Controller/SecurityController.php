@@ -36,22 +36,30 @@ class SecurityController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
+        $isEdit = $request->query->getBoolean('edit', false);
         $form = $this->createForm(UserProfileFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            if ($plainPassword) {
-                $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+            $currentPassword = $form->get('currentPassword')->getData();
+            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                $form->get('currentPassword')->addError(new \Symfony\Component\Form\FormError('Incorrect current password.'));
+            } else {
+                $plainPassword = $form->get('plainPassword')->getData();
+                if ($plainPassword) {
+                    $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
+                }
+
+                $entityManager->flush();
+                $this->addFlash('success', 'Profile updated successfully!');
+                return $this->redirectToRoute('app_profile');
             }
-
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_profile');
         }
 
         return $this->render('security/profile.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
+            'isEdit' => $isEdit || $form->isSubmitted(),
+            'user' => $user,
         ]);
     }
 }

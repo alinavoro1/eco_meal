@@ -24,7 +24,15 @@
         <div class="eco-detail-card" style="max-width: none;">
             <div class="eco-detail-row">
                 <span class="eco-detail-label">Price</span>
-                <span class="eco-detail-value" style="font-size: 1.25rem; color: var(--primary); font-weight: 700;">{{ package.price }} lei</span>
+                <span class="eco-detail-value" style="font-size: 1.25rem; color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                    {% if package.discountPercentage %}
+                        <span style="color: #ef4444;">{{ package.price }} lei</span>
+                        <span style="text-decoration: line-through; color: var(--text-muted); font-size: 14px;">{{ package.originalPrice }} lei</span>
+                        <span class="badge" style="background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; font-size: 11px; padding: 2px 6px;">-{{ package.discountPercentage }}% Happy Hour</span>
+                    {% else %}
+                        {{ package.price }} lei
+                    {% endif %}
+                </span>
             </div>
             <div class="eco-detail-row">
                 <span class="eco-detail-label">Description</span>
@@ -36,11 +44,22 @@
             </div>
             <div class="eco-detail-row">
                 <span class="eco-detail-label">Business</span>
-                <span class="eco-detail-value">
-                    {% if is_granted('ROLE_ADMIN') %}
-                        <a href="{{ path('app_business_view', {id: package.business.id}) }}" style="color: var(--primary); font-weight: 600; text-decoration: none;">{{ package.business.name }}</a>
-                    {% else %}
-                        {{ package.business.name }}
+                <span class="eco-detail-value" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_business_view', {id: package.business.id}) }}" style="color: var(--primary); font-weight: 600; text-decoration: none;">{{ package.business.name }}</a>
+                        {% else %}
+                            {{ package.business.name }}
+                        {% endif %}
+                    </span>
+                    {% if app.user and app.user.consumer %}
+                        {% set isFav = app.user.consumer.hasFavoriteBusiness(package.business) %}
+                        <form method="POST" action="{{ path('app_consumer_favorite_toggle', {id: package.business.id, redirect_package_id: package.id}) }}" style="margin: 0; display: inline-block;">
+                            <button type="submit" class="eco-btn {{ isFav ? 'eco-btn-danger' : 'eco-btn-ghost' }}" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid {{ isFav ? '#ef4444' : 'var(--border)' }}; cursor: pointer;">
+                                <i class="bi {{ isFav ? 'bi-heart-fill' : 'bi-heart' }}" style="{{ isFav ? 'color: #fff;' : 'color: #ef4444;' }}"></i>
+                                {{ isFav ? 'Favorite Business' : 'Add to Favorites' }}
+                            </button>
+                        </form>
                     {% endif %}
                 </span>
             </div>
@@ -54,8 +73,13 @@
                     <a href="{{ path('app_order_new', {id: package.id}) }}" class="eco-btn eco-btn-primary">Order Now</a>
                 {% endif %}
                 {% if app.user and app.user.getBusiness() and app.user.getBusiness().getId() == package.business.id %}
-                    <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
-                    <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                    {% set threshold = "now"|date_modify("-24 hours")|date("U") %}
+                    {% set isExpired = package.createdAt and package.createdAt|date("U") < threshold %}
+                    {% set isOngoing = package.consumerOrder is not null %}
+                    {% if not isExpired and not isOngoing %}
+                        <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                        <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>

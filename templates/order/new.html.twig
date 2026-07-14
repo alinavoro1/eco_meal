@@ -18,7 +18,7 @@
         </p>
 
         {% if package %}
-            <div style="background: var(--primary-soft); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 24px; border: 1px solid rgba(16,185,129,0.2);">
+            <div style="background: var(--primary-soft); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 16px; border: 1px solid rgba(16,185,129,0.2);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <div style="font-weight: 700; color: var(--text);">{{ package.name }}</div>
@@ -27,12 +27,25 @@
                     <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary);">{{ package.price }} lei</div>
                 </div>
             </div>
+
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text);">
+                    <i class="bi bi-geo-alt-fill" style="color: var(--primary);"></i>
+                    <span>{{ package.business.street }} {{ package.business.houseNumber }}, {{ package.business.city }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text);">
+                    <i class="bi bi-telephone-fill" style="color: var(--primary);"></i>
+                    <a href="tel:{{ package.business.phoneNumber }}" style="color: var(--primary); font-weight: 600;">{{ package.business.phoneNumber }}</a>
+                </div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 14px 16px; border-radius: var(--radius-sm); margin-bottom: 24px; color: #b45309; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-clock-history"></i>
+                After ordering, you will have 2 hours to pick up your package.
+            </div>
         {% endif %}
 
         {{ form_start(form) }}
-            {% if form.createdAt is defined %}
-                {{ form_row(form.createdAt) }}
-            {% endif %}
             {% if form.package is defined %}
                 {{ form_row(form.package) }}
             {% endif %}

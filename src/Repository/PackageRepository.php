@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Dto\PackageSearchFilter;
 use App\Entity\Package;
 use App\Entity\Business;
+use App\Entity\Consumer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,7 +19,7 @@ class PackageRepository extends ServiceEntityRepository
         parent::__construct($registry, Package::class);
     }
 
-    public function findByFilter(PackageSearchFilter $filter, ?Business $business = null): array
+    public function findByFilter(PackageSearchFilter $filter, ?Business $business = null, bool $excludeOrdered = false, ?Consumer $consumer = null): array
     {
         $qb = $this->createQueryBuilder('p')
             ->select('p')
@@ -27,6 +28,13 @@ class PackageRepository extends ServiceEntityRepository
             ->leftJoin('p.business', 'b')
             ->addSelect('b');
 
+        if ($excludeOrdered) {
+            $expiresAt = new \DateTimeImmutable('-24 hours');
+            $qb->leftJoin('p.consumer_order', 'co')
+                ->andWhere('co.id IS NULL')
+                ->andWhere('p.created_at >= :expiresAt')
+                ->setParameter('expiresAt', $expiresAt);
+        }
         if ($business) {
             $qb->andWhere("p.business = :business")
                ->setParameter('business', $business);
@@ -57,6 +65,11 @@ class PackageRepository extends ServiceEntityRepository
                 ->setParameter('category', $filter->category);
         }
 
+        if ($consumer !== null && !$consumer->getPreferredCategories()->isEmpty()) {
+            $qb->andWhere('p.category IN (:preferredCategories)')
+               ->setParameter('preferredCategories', $consumer->getPreferredCategories()->toArray());
+        }
+
         return $qb->getQuery()->getResult();
     }
 
@@ -84,4 +97,57 @@ class PackageRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function findByFavoriteBusinesses(Consumer $consumer, PackageSearchFilter $filter): array
+    {
+        $businesses = $consumer->getFavoriteBusinesses();
+
+        if ($businesses->isEmpty()) {
+            return [];
+        }
+
+        $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.consumer_order', 'co')
+            ->leftJoin('p.business', 'b')
+            ->addSelect('b')
+            ->leftJoin('p.category', 'c')
+            ->addSelect('c')
+            ->where('p.business IN (:businesses)')
+            ->andWhere('co.id IS NULL')
+            ->andWhere('p.created_at >= :expiresAt')
+            ->setParameter('businesses', $businesses->toArray())
+            ->setParameter('expiresAt', new \DateTimeImmutable('-24 hours'));
+
+        if (!$consumer->getPreferredCategories()->isEmpty()) {
+            $qb->andWhere('p.category IN (:preferredCategories)')
+               ->setParameter('preferredCategories', $consumer->getPreferredCategories()->toArray());
+        }
+
+        if ($filter->city) {
+            $qb->andWhere("b.city LIKE :city")
+               ->setParameter('city', '%'.$filter->city.'%');
+        }
+
+        if ($filter->name) {
+            $qb->andWhere("p.name LIKE :searchWord OR p.description LIKE :searchWord")
+               ->setParameter('searchWord', '%'.$filter->name.'%');
+        }
+
+        if ($filter->minPrice) {
+            $qb->andWhere("p.price >= :minPrice")
+               ->setParameter('minPrice', $filter->minPrice);
+        }
+
+        if ($filter->maxPrice) {
+            $qb->andWhere("p.price <= :maxPrice")
+               ->setParameter('maxPrice', $filter->maxPrice);
+        }
+
+        if ($filter->category) {
+            $qb->andWhere("p.category = :category")
+               ->setParameter('category', $filter->category);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

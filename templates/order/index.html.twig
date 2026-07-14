@@ -54,10 +54,26 @@
         </div>
     </div>
 
-    {% if orders|length > 0 %}
-        <div class="eco-orders-grid">
-            {% for order in orders %}
-                <div class="eco-order-card">
+    {% set ongoing_orders = [] %}
+    {% set past_orders = [] %}
+
+    {% set now_timestamp = "now"|date("U") %}
+
+    {% for order in orders %}
+        {% set limit_timestamp = order.createdAt|date_modify("+2 hours")|date("U") %}
+
+        {% if order.fulfilledAt is not null %}
+            {% set past_orders = past_orders|merge([order]) %}
+        {% elseif limit_timestamp > now_timestamp %}
+            {% set ongoing_orders = ongoing_orders|merge([order]) %}
+        {% endif %}
+    {% endfor %}
+
+    <h2>Ongoing Orders</h2>
+    {% if ongoing_orders|length > 0 %}
+        <div class="eco-orders-grid" style="margin-bottom: 40px;">
+            {% for order in ongoing_orders %}
+                <div class="eco-order-card" style="border-left: 4px solid var(--primary);">
                     <div class="eco-order-header">
                         <div class="eco-order-id">Order #{{ order.id }}</div>
                         <div class="eco-order-date">{{ order.createdAt|date('d M Y, H:i') }}</div>
@@ -66,21 +82,11 @@
                     <div class="eco-order-package">
                         <div class="eco-order-label">Package</div>
                         <h3 class="eco-order-package-name">{{ order.package.name }}</h3>
-                        <p class="eco-order-package-desc">{{ order.package.description }}</p>
                         <div class="eco-order-price">{{ order.package.price }} lei</div>
                     </div>
 
-                    <div class="eco-order-consumer">
-                        <div class="eco-order-label">From</div>
-                        <p>
-                            <strong>{{ order.consumer.firstName }} {{ order.consumer.lastName }}</strong><br>
-                            <span style="color: var(--text-muted); font-size: 13px;">{{ order.consumer.phoneNumber }}</span>
-                        </p>
-                    </div>
-
-                    <div class="eco-order-business">
-                        <div class="eco-order-label">Seller</div>
-                        <p><strong>{{ order.package.business.name }}</strong></p>
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: 8px; margin: 12px 0; color: #b45309; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                        <i class="bi bi-clock-history"></i> You have until {{ order.createdAt|date_modify("+2 hours")|date('H:i') }} to pick it up!
                     </div>
 
                     <div class="eco-order-actions" style="display: flex; gap: 8px; width: 100%;">
@@ -93,11 +99,35 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
-            📋 No orders yet.
-            {% if is_granted('ROLE_CONSUMER') %}
-                <a href="{{ path('app_order_new') }}" style="color: var(--primary); font-weight: 600;">Create one</a>
-            {% endif %}
+        <div class="eco-empty" style="margin-bottom: 40px;">No ongoing orders.</div>
+    {% endif %}
+
+    <h2>Past Orders</h2>
+    {% if past_orders|length > 0 %}
+        <div class="eco-orders-grid">
+            {% for order in past_orders %}
+                <div class="eco-order-card" style="opacity: 0.75; background: #fafafa;">
+                    <div class="eco-order-header">
+                        <div class="eco-order-id">Order #{{ order.id }}</div>
+                        <div class="eco-order-date">{{ order.createdAt|date('d M Y, H:i') }}</div>
+                    </div>
+
+                    <div class="eco-order-package">
+                        <h3 class="eco-order-package-name" style="color: var(--text-muted);">{{ order.package.name }}</h3>
+                        <div class="eco-order-price" style="color: var(--text-muted);">{{ order.package.price }} lei</div>
+                    </div>
+
+                    <div style="color: var(--text-muted); font-size: 13px; font-style: italic; margin: 8px 0;">
+                        This order was fulfilled at {{ order.fulfilledAt|date('d M Y, H:i') }}.
+                    </div>
+
+                    <div class="eco-order-actions">
+                        <a href="{{ path('app_order_view', {id: order.id}) }}" class="eco-btn eco-btn-ghost" style="width: 100%; text-align: center; justify-content: center;">View Details</a>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
+    {% else %}
+        <div class="eco-empty">No past orders.</div>
     {% endif %}
 {% endblock %}

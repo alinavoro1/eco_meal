@@ -48,16 +48,22 @@
             </span>
         </div>
 
-        <div class="eco-detail-actions">
+        <div class="eco-detail-actions" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
             {% if is_granted('ROLE_ADMIN') %}
                 {% if not business.user %}
                     <a href="{{ path('app_business_create_account', {id: business.id}) }}" class="eco-btn eco-btn-secondary">🔑 Create Account</a>
                 {% endif %}
+                <a href="{{ path('app_business_stats', {id: business.id}) }}" class="eco-btn" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); color: #fff; border: none; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-bar-chart-fill"></i> Statistics
+                </a>
                 <a href="{{ path('app_business') }}" class="eco-btn eco-btn-ghost">← Back</a>
                 <a href="{{ path('app_business_delete', {id: business.id}) }}" class="eco-btn eco-btn-danger"
                    onclick="return confirm('Delete this business?')">Delete</a>
             {% else %}
                 <a href="{{ path('app_business_add_package', {id: business.id}) }}" class="eco-btn eco-btn-primary">+ Add Package</a>
+                <a href="{{ path('app_business_stats', {id: business.id}) }}" class="eco-btn" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); color: #fff; border: none; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-bar-chart-fill"></i> Statistics
+                </a>
                 <a href="{{ path('app_business_edit', {id: business.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
             {% endif %}
         </div>
@@ -65,46 +71,48 @@
     </div>
 
     <div style="margin-top: 40px;">
-        <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 20px; color: var(--text);">Packages</h2>
+        {%  if is_granted('ROLE_ADMIN') %}
+            <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 20px; color: var(--text);">Packages</h2>
 
-        {% if business.packages|length > 0 %}
-            <div class="eco-packages-grid">
-                {% for package in business.packages %}
-                    <div class="eco-package-card">
-                        {% if package.photo %}
-                            <div class="eco-package-image">
-                                <img src="{{ package.photo }}" alt="{{ package.name }}" />
-                            </div>
-                        {% else %}
-                            <div class="eco-package-image-empty">
-                                <span style="font-size: 2.5rem;">📦</span>
-                            </div>
-                        {% endif %}
+            {% if business.packages|length > 0 %}
+                <div class="eco-packages-grid">
+                    {% for package in business.packages %}
+                        <div class="eco-package-card">
+                            {% if package.photo %}
+                                <div class="eco-package-image">
+                                    <img src="{{ package.photo }}" alt="{{ package.name }}" />
+                                </div>
+                            {% else %}
+                                <div class="eco-package-image-empty">
+                                    <span style="font-size: 2.5rem;">📦</span>
+                                </div>
+                            {% endif %}
 
-                        <div class="eco-package-content">
-                            <h3 class="eco-package-name">{{ package.name }}</h3>
-                            <p class="eco-package-description">{{ package.description }}</p>
+                            <div class="eco-package-content">
+                                <h3 class="eco-package-name">{{ package.name }}</h3>
+                                <p class="eco-package-description">{{ package.description }}</p>
 
-                            <div class="eco-package-meta">
-                                <span class="eco-package-price">{{ package.price }} lei</span>
-                                <span class="badge badge-amber">{{ package.category.name }}</span>
-                            </div>
+                                <div class="eco-package-meta">
+                                    <span class="eco-package-price">{{ package.price }} lei</span>
+                                    <span class="badge badge-amber">{{ package.category.name }}</span>
+                                </div>
 
-                            <div class="eco-package-actions">
-                                <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
-                                {% if app.user and app.user.getBusiness() and app.user.getBusiness().getId() == business.id %}
-                                    <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
-                                    <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
-                                {% endif %}
+                                <div class="eco-package-actions">
+                                    <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
+                                    {% if app.user and app.user.getBusiness() and app.user.getBusiness().getId() == business.id %}
+                                        <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
+                                        <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
-                📦 No packages yet. <a href="{{ path('app_business_add_package', {id: business.id}) }}" style="color: var(--primary); font-weight: 600;">Create one</a>
-            </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                    📦 No packages yet. <a href="{{ path('app_business_add_package', {id: business.id}) }}" style="color: var(--primary); font-weight: 600;">Create one</a>
+                </div>
+            {% endif %}
         {% endif %}
     </div>
 

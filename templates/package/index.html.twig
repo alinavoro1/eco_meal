@@ -8,10 +8,15 @@
         <a href="{{ path('app_package') }}" class="eco-btn eco-btn-primary">Refresh</a>
     </div>
 
-    <div style="margin-bottom: 24px;">
+    <div style="margin-bottom: 24px; display: flex; gap: 12px; align-items: center;">
         <button type="button" class="eco-btn" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); color: #fff; border: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);" data-bs-toggle="modal" data-bs-target="#filterModal">
             <i class="bi bi-sliders"></i> Filter Packages
         </button>
+        {% if app.user and app.user.consumer %}
+            <button type="button" class="eco-btn" style="background: linear-gradient(135deg, #34d399 0%, #10b981 100%); color: #fff; border: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);" data-bs-toggle="modal" data-bs-target="#preferencesModal">
+                <i class="bi bi-sliders2"></i> Set Preferences
+            </button>
+        {% endif %}
     </div>
 
     <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
@@ -62,50 +67,249 @@
         </div>
     </div>
 
-    {% if packages|length > 0 %}
-        <div class="eco-packages-grid">
-            {% for package in packages %}
-                <div class="eco-package-card">
-                    {% if package.photo %}
-                        <div class="eco-package-image">
-                            <img src="{{ package.photo }}" alt="{{ package.name }}" />
-                        </div>
-                    {% else %}
-                        <div class="eco-package-image-empty">
-                            <span style="font-size: 2.5rem;">📦</span>
-                        </div>
-                    {% endif %}
+    {% if preferences_form is not null %}
+    <div class="modal fade" id="preferencesModal" tabindex="-1" aria-labelledby="preferencesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border); padding: 20px 24px;">
+                    <h5 class="modal-title" id="preferencesModalLabel" style="font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px;">
+                        <i class="bi bi-sliders2" style="color: #10b981;"></i> Set Preferences
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                {{ form_start(preferences_form) }}
+                <div class="modal-body" style="padding: 24px;">
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+                        Select the categories you prefer. Only packages matching these categories will be displayed. If you select none, all packages are shown.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        {{ form_row(preferences_form.preferredCategories) }}
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border); padding: 16px 24px; display: flex; gap: 10px;">
+                    <button type="button" class="eco-btn eco-btn-cancel" data-bs-dismiss="modal" style="margin: 0; flex: 1;">Cancel</button>
+                    {{ form_widget(preferences_form.submit, {
+                        attr: { class: 'eco-btn eco-btn-primary', style: 'margin: 0; flex: 1; background: #10b981; border: none; cursor: pointer;' },
+                        label: 'Save Preferences'
+                    }) }}
+                </div>
+                {{ form_end(preferences_form) }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
-                    <div class="eco-package-content">
-                        <h3 class="eco-package-name">{{ package.name }}</h3>
-                        <p class="eco-package-description">{{ package.description }}</p>
+    {% if is_admin_or_business %}
 
-                        <div class="eco-package-meta">
-                            <span class="eco-package-price">{{ package.price }} lei</span>
-                            <span class="badge badge-amber">{{ package.category.name }}</span>
-                        </div>
-
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
-                            from <strong>{{ package.business.name }}</strong>
-                        </div>
-
-                        <div class="eco-package-actions" style="margin-top: 12px;">
-                            <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
-                            {% if is_granted('ROLE_CONSUMER') %}
-                                <a href="{{ path('app_order_new', {id: package.id}) }}" class="eco-btn eco-btn-secondary">Order</a>
-                            {% endif %}
-                            {% if app.user and app.user.getBusiness() and app.user.getBusiness().getId() == package.business.id %}
+        {% macro package_card(package) %}
+            <div class="eco-package-card">
+                {% if package.photo %}
+                    <div class="eco-package-image">
+                        <img src="{{ package.photo }}" alt="{{ package.name }}" />
+                    </div>
+                {% else %}
+                    <div class="eco-package-image-empty">
+                        <span style="font-size: 2.5rem;">📦</span>
+                    </div>
+                {% endif %}
+                <div class="eco-package-content">
+                    <div style="margin-bottom: 6px;">
+                        <span class="badge badge-amber">{{ package.category.name }}</span>
+                    </div>
+                    <h3 class="eco-package-name" style="margin-top: 0;">{{ package.name }}</h3>
+                    <p class="eco-package-description">{{ package.description }}</p>
+                    <div class="eco-package-meta">
+                        {% if package.discountPercentage %}
+                            <span class="eco-package-price" style="color: #ef4444;">{{ package.price|number_format(2, '.', ',') }} lei</span>
+                            <span style="text-decoration: line-through; color: var(--text-muted); font-size: 13px; margin-left: 6px;">{{ package.originalPrice|number_format(2, '.', ',') }} lei</span>
+                            <span class="badge" style="margin-left: 6px; background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; font-size: 11px; padding: 2px 6px;">-{{ package.discountPercentage }}% Happy Hour</span>
+                        {% else %}
+                            <span class="eco-package-price">{{ package.price|number_format(2, '.', ',') }} lei</span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+                        from <strong>{{ package.business.name }}</strong>
+                    </div>
+                    <div class="eco-package-actions" style="margin-top: 12px;">
+                        <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
+                        {% if app.user and app.user.getBusiness() and app.user.getBusiness().getId() == package.business.id %}
+                            {% set threshold = "now"|date_modify("-24 hours")|date("U") %}
+                            {% set isExpired = package.createdAt and package.createdAt|date("U") < threshold %}
+                            {% set isOngoing = package.consumerOrder is not null %}
+                            {% if not isExpired and not isOngoing %}
                                 <a href="{{ path('app_package_edit', {id: package.id}) }}" class="eco-btn eco-btn-ghost">Edit</a>
                                 <a href="{{ path('app_package_delete', {id: package.id}) }}" class="eco-btn eco-btn-danger" onclick="return confirm('Delete this package?')">Delete</a>
                             {% endif %}
-                        </div>
+                        {% endif %}
                     </div>
                 </div>
-            {% endfor %}
+            </div>
+        {% endmacro %}
+
+        <div style="margin-bottom: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <span style="width: 12px; height: 12px; border-radius: 50%; background: var(--primary); display: inline-block;"></span>
+                <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text);">Available <span style="color: var(--text-muted); font-weight: 400; font-size: 0.95rem;">({{ available_packages|length }})</span></h2>
+            </div>
+            {% if available_packages|length > 0 %}
+                <div class="eco-packages-grid">
+                    {% for package in available_packages %}
+                        {{ _self.package_card(package) }}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                    No available packages.
+                </div>
+            {% endif %}
         </div>
+
+        <div style="margin-bottom: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <span style="width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text);">Ongoing (Ordered) <span style="color: var(--text-muted); font-weight: 400; font-size: 0.95rem;">({{ ongoing_packages|length }})</span></h2>
+            </div>
+            {% if ongoing_packages|length > 0 %}
+                <div class="eco-packages-grid">
+                    {% for package in ongoing_packages %}
+                        {{ _self.package_card(package) }}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                    No ongoing packages.
+                </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <span style="width: 12px; height: 12px; border-radius: 50%; background: #94a3b8; display: inline-block;"></span>
+                <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text);">Expired <span style="color: var(--text-muted); font-weight: 400; font-size: 0.95rem;">({{ expired_packages|length }})</span></h2>
+            </div>
+            {% if expired_packages|length > 0 %}
+                <div class="eco-packages-grid" style="opacity: 0.65;">
+                    {% for package in expired_packages %}
+                        {{ _self.package_card(package) }}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                    No expired packages.
+                </div>
+            {% endif %}
+        </div>
+
     {% else %}
-        <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
-            📦 No packages available.
-        </div>
+
+        {% if app.user and app.user.consumer and favorite_packages|length > 0 %}
+            <div style="margin-bottom: 40px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <i class="bi bi-heart-fill" style="color: #ef4444; font-size: 1.1rem;"></i>
+                    <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text);">From Your Favorites <span style="color: var(--text-muted); font-weight: 400; font-size: 0.95rem;">({{ favorite_packages|length }})</span></h2>
+                </div>
+                <div class="eco-packages-grid">
+                    {% for package in favorite_packages %}
+                        <div class="eco-package-card">
+                            {% if package.photo %}
+                                <div class="eco-package-image">
+                                    <img src="{{ package.photo }}" alt="{{ package.name }}" />
+                                </div>
+                            {% else %}
+                                <div class="eco-package-image-empty">
+                                    <span style="font-size: 2.5rem;">📦</span>
+                                </div>
+                            {% endif %}
+
+                            <div class="eco-package-content">
+                                <div style="margin-bottom: 6px;">
+                                    <span class="badge badge-amber">{{ package.category.name }}</span>
+                                </div>
+                                <h3 class="eco-package-name" style="margin-top: 0;">{{ package.name }}</h3>
+                                <p class="eco-package-description">{{ package.description }}</p>
+
+                                <div class="eco-package-meta">
+                                    {% if package.discountPercentage %}
+                                        <span class="eco-package-price" style="color: #ef4444;">{{ package.price|number_format(2, '.', ',') }} lei</span>
+                                        <span style="text-decoration: line-through; color: var(--text-muted); font-size: 13px; margin-left: 6px;">{{ package.originalPrice|number_format(2, '.', ',') }} lei</span>
+                                        <span class="badge" style="margin-left: 6px; background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; font-size: 11px; padding: 2px 6px;">-{{ package.discountPercentage }}% Happy Hour</span>
+                                    {% else %}
+                                        <span class="eco-package-price">{{ package.price|number_format(2, '.', ',') }} lei</span>
+                                    {% endif %}
+                                </div>
+
+                                <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+                                    from <strong>{{ package.business.name }}</strong>
+                                </div>
+
+                                <div class="eco-package-actions" style="margin-top: 12px;">
+                                    <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
+                                    {% if is_granted('ROLE_CONSUMER') %}
+                                        <a href="{{ path('app_order_new', {id: package.id}) }}" class="eco-btn eco-btn-secondary">Order</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <hr style="border-color: var(--border); margin-bottom: 32px;">
+        {% endif %}
+
+        {% if packages|length > 0 %}
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text);">All Packages <span style="color: var(--text-muted); font-weight: 400; font-size: 0.95rem;">({{ packages|length }})</span></h2>
+            </div>
+            <div class="eco-packages-grid">
+                {% for package in packages %}
+                    <div class="eco-package-card">
+                        {% if package.photo %}
+                            <div class="eco-package-image">
+                                <img src="{{ package.photo }}" alt="{{ package.name }}" />
+                            </div>
+                        {% else %}
+                            <div class="eco-package-image-empty">
+                                <span style="font-size: 2.5rem;">📦</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="eco-package-content">
+                            <div style="margin-bottom: 6px;">
+                                <span class="badge badge-amber">{{ package.category.name }}</span>
+                            </div>
+                            <h3 class="eco-package-name" style="margin-top: 0;">{{ package.name }}</h3>
+                            <p class="eco-package-description">{{ package.description }}</p>
+
+                            <div class="eco-package-meta">
+                                 {% if package.discountPercentage %}
+                                     <span class="eco-package-price" style="color: #ef4444;">{{ package.price|number_format(2, '.', ',') }} lei</span>
+                                     <span style="text-decoration: line-through; color: var(--text-muted); font-size: 13px; margin-left: 6px;">{{ package.originalPrice|number_format(2, '.', ',') }} lei</span>
+                                     <span class="badge" style="margin-left: 6px; background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; font-size: 11px; padding: 2px 6px;">-{{ package.discountPercentage }}% Happy Hour</span>
+                                 {% else %}
+                                     <span class="eco-package-price">{{ package.price|number_format(2, '.', ',') }} lei</span>
+                                 {% endif %}
+                            </div>
+
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+                                from <strong>{{ package.business.name }}</strong>
+                            </div>
+
+                            <div class="eco-package-actions" style="margin-top: 12px;">
+                                <a href="{{ path('app_package_view', {id: package.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center;">View</a>
+                                {% if is_granted('ROLE_CONSUMER') %}
+                                    <a href="{{ path('app_order_new', {id: package.id}) }}" class="eco-btn eco-btn-secondary">Order</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="eco-empty" style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                📦 No packages available.
+            </div>
+        {% endif %}
+
     {% endif %}
 {% endblock %}
+

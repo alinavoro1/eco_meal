@@ -39,6 +39,12 @@ class Package
     #[ORM\OneToOne(mappedBy: 'package', cascade: ['persist', 'remove'])]
     private ?Order $consumer_order = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $originalPrice = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $discountPercentage = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -135,7 +141,6 @@ class Package
 
     public function setConsumerOrder(Order $consumer_order): static
     {
-        // set the owning side of the relation if necessary
         if ($consumer_order->getPackage() !== $this) {
             $consumer_order->setPackage($this);
         }
@@ -143,5 +148,32 @@ class Package
         $this->consumer_order = $consumer_order;
 
         return $this;
+    }
+
+    public function getOriginalPrice(): ?float
+    {
+        return $this->originalPrice;
+    }
+
+    public function setOriginalPrice(?float $originalPrice): static
+    {
+        $this->originalPrice = $originalPrice;
+        return $this;
+    }
+
+    public function getDiscountPercentage(): ?int
+    {
+        return $this->discountPercentage;
+    }
+
+    public function setDiscountPercentage(?int $discountPercentage): static
+    {
+        $this->discountPercentage = $discountPercentage;
+        return $this;
+    }
+
+    public function __construct()
+    {
+        $this->created_at = new \DateTimeImmutable();
     }
 }

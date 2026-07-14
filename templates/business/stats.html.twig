@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistics – {{ business.name }}{% endblock %}
+
+{% block body %}
+    <div class="eco-page-header" style="margin-bottom: 28px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--primary); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                <i class="bi bi-bar-chart-fill"></i> Performance Analytics
+            </div>
+            <h1 style="margin: 0;">{{ business.name }}</h1>
+        </div>
+        <a href="{{ path('app_business_view', {id: business.id}) }}" class="eco-btn eco-btn-ghost" style="display: inline-flex; align-items: center; gap: 6px;">
+            <i class="bi bi-arrow-left"></i> Back to Business
+        </a>
+    </div>
+
+    <!-- Period Selection Bar -->
+    <div class="eco-detail-card" style="margin-bottom: 32px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <span style="font-weight: 600; color: var(--text-muted); font-size: 14px;">Select Time Period:</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {% set periods = {
+                'all_time': 'All Time',
+                'last_month': 'Last 30 Days',
+                'last_week': 'Last 7 Days',
+                'today': 'Today'
+            } %}
+            {% for key, label in periods %}
+                <a href="{{ path('app_business_stats', {id: business.id, period: key}) }}" 
+                   class="eco-btn {% if currentPeriod == key %}eco-btn-primary{% else %}eco-btn-ghost{% endif %}"
+                   style="font-size: 13px; padding: 8px 16px; border: 1px solid {% if currentPeriod == key %}var(--primary){% else %}var(--border){% endif %}; text-decoration: none; justify-content: center; text-align: center;">
+                    {{ label }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <div class="eco-detail-card" style="position: relative; overflow: hidden; border-left: 4px solid var(--primary);">
+            <div style="font-size: 2.25rem; font-weight: 800; color: var(--primary);">{{ totalRevenue|number_format(2, '.', ',') }} lei</div>
+            <div style="color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-top: 6px;">Total Revenue</div>
+            <i class="bi bi-cash-stack" style="position: absolute; right: 16px; bottom: 8px; font-size: 3rem; color: var(--primary-soft); opacity: 0.2;"></i>
+        </div>
+        <div class="eco-detail-card" style="position: relative; overflow: hidden; border-left: 4px solid #10b981;">
+            <div style="font-size: 2.25rem; font-weight: 800; color: #10b981;">{{ totalOrders }}</div>
+            <div style="color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-top: 6px;">Orders Fulfilled</div>
+            <i class="bi bi-check-circle-fill" style="position: absolute; right: 16px; bottom: 8px; font-size: 3rem; color: rgba(16, 185, 129, 0.2); opacity: 0.2;"></i>
+        </div>
+        <div class="eco-detail-card" style="position: relative; overflow: hidden; border-left: 4px solid #ef4444;">
+            <div style="font-size: 2.25rem; font-weight: 800; color: #ef4444;">{{ totalCancelled }}</div>
+            <div style="color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-top: 6px;">Orders Cancelled</div>
+            <i class="bi bi-x-circle-fill" style="position: absolute; right: 16px; bottom: 8px; font-size: 3rem; color: rgba(239, 68, 68, 0.2); opacity: 0.2;"></i>
+        </div>
+    </div>
+
+    <!-- Detailed Charts & Tables -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px;">
+        <!-- Monthly Revenue Card -->
+        <div class="eco-detail-card">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                <i class="bi bi-calendar-range" style="color: var(--primary); font-size: 1.2rem;"></i>
+                <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Revenue Breakdown</h2>
+            </div>
+            {% if monthlyRevenue|length > 0 %}
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; padding: 12px 8px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border);">Month</th>
+                                <th style="text-align: right; padding: 12px 8px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--border);">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in monthlyRevenue %}
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 14px 8px; font-weight: 600; color: var(--text);">{{ row.month }}</td>
+                                    <td style="padding: 14px 8px; text-align: right; color: var(--primary); font-weight: 700;">{{ row.total|number_format(2, '.', ',') }} lei</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 40px 0; color: var(--text-muted);">
+                    <i class="bi bi-inbox" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                    <p style="margin-top: 12px; font-size: 14px;">No revenue records found for this period.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Top Categories Card -->
+        <div class="eco-detail-card">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                <i class="bi bi-tags" style="color: var(--primary); font-size: 1.2rem;"></i>
+                <h2 style="font-size: 1.1rem; font-weight: 700; margin: 0;">Top Selling Categories</h2>
+            </div>
+            {% if categoryStats|length > 0 %}
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    {% for row in categoryStats %}
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="font-weight: 600; color: var(--text);">{{ row.categoryName ?? 'Uncategorized' }}</span>
+                                <span style="font-size: 13px; color: var(--text-muted);">
+                                    <strong>{{ row.total }}</strong> orders · <span style="color: var(--primary); font-weight: 600;">{{ row.revenue|number_format(2, '.', ',') }} lei</span>
+                                </span>
+                            </div>
+                            {% set maxOrders = categoryStats[0].total %}
+                            <div style="background: var(--border); border-radius: 99px; height: 8px; overflow: hidden;">
+                                <div style="background: linear-gradient(90deg, var(--primary) 0%, #8b5cf6 100%); border-radius: 99px; height: 8px; width: {{ maxOrders > 0 ? (row.total / maxOrders * 100)|round : 0 }}%;"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 40px 0; color: var(--text-muted);">
+                    <i class="bi bi-tag" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                    <p style="margin-top: 12px; font-size: 14px;">No categories data available for this period.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
