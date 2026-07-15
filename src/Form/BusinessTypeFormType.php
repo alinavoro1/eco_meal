@@ -15,7 +15,13 @@ class BusinessTypeFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class)
+            ->add('name', TextType::class, [
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank([
+                        'message' => 'Please enter a business type name.',
+                    ]),
+                ],
+            ])
             ->add('submit', SubmitType::class);
     }
 

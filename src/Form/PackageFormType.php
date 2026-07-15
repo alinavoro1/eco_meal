@@ -19,9 +19,38 @@ class PackageFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', TextType::class)
-            ->add('description', TextType::class)
-            ->add('price', NumberType::class)
+            ->add('name', TextType::class, [
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank([
+                        'message' => 'Please enter a package name.',
+                    ]),
+                    new \Symfony\Component\Validator\Constraints\Length([
+                        'max' => 100,
+                        'maxMessage' => 'Package name cannot be longer than {{ limit }} characters.',
+                    ]),
+                ],
+            ])
+            ->add('description', TextType::class, [
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank([
+                        'message' => 'Please enter a description.',
+                    ]),
+                    new \Symfony\Component\Validator\Constraints\Length([
+                        'max' => 255,
+                        'maxMessage' => 'Description cannot be longer than {{ limit }} characters.',
+                    ]),
+                ],
+            ])
+            ->add('price', NumberType::class, [
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank([
+                        'message' => 'Please enter a price.',
+                    ]),
+                    new \Symfony\Component\Validator\Constraints\Positive([
+                        'message' => 'Price must be a positive number greater than 0.',
+                    ]),
+                ],
+            ])
             ->add('photo', \Symfony\Component\Form\Extension\Core\Type\FileType::class, [
                 'label' => 'Photo (Image file)',
                 'mapped' => false,

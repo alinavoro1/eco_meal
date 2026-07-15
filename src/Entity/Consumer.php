@@ -89,9 +89,21 @@ class Consumer
         return $this->phone_number;
     }
 
-    public function setPhoneNumber(string $phone_number): static
+    public function setPhoneNumber(?string $phone_number): static
     {
-        $this->phone_number = $phone_number;
+        if ($phone_number !== null) {
+            $digits = preg_replace('/\s+|-/', '', $phone_number);
+            if (str_starts_with($digits, '+40')) {
+                $digits = substr($digits, 3);
+            } elseif (str_starts_with($digits, '40')) {
+                $digits = substr($digits, 2);
+            } elseif (str_starts_with($digits, '0')) {
+                $digits = substr($digits, 1);
+            }
+            $this->phone_number = '+40' . $digits;
+        } else {
+            $this->phone_number = null;
+        }
 
         return $this;
     }

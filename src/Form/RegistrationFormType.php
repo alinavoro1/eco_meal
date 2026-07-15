@@ -25,6 +25,14 @@ class RegistrationFormType extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'Email Address',
                 'attr' => ['placeholder' => 'your@email.com'],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter an email address.',
+                    ]),
+                    new \Symfony\Component\Validator\Constraints\Email([
+                        'message' => 'Please enter a valid email address.',
+                    ]),
+                ],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password',

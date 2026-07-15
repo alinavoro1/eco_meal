@@ -19,6 +19,14 @@ class UserProfileFormType extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'Email Address',
                 'attr' => ['placeholder' => 'your@email.com'],
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\NotBlank([
+                        'message' => 'Please enter an email address.',
+                    ]),
+                    new \Symfony\Component\Validator\Constraints\Email([
+                        'message' => 'Please enter a valid email address.',
+                    ]),
+                ],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'New Password (leave blank to keep current)',
