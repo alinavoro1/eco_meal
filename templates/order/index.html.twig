@@ -73,6 +73,7 @@
     {% if ongoing_orders|length > 0 %}
         <div class="eco-orders-grid" style="margin-bottom: 40px;">
             {% for order in ongoing_orders %}
+                {% set limit_timestamp = order.createdAt|date_modify("+2 hours")|date("U") %}
                 <div class="eco-order-card" style="border-left: 4px solid var(--primary);">
                     <div class="eco-order-header">
                         <div class="eco-order-id">Order #{{ order.id }}</div>
@@ -85,9 +86,43 @@
                         <div class="eco-order-price">{{ order.package.price }} lei</div>
                     </div>
 
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: 8px; margin: 12px 0; color: #b45309; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                        <i class="bi bi-clock-history"></i> You have until {{ order.createdAt|date_modify("+2 hours")|date('H:i') }} to pick it up!
+                {% if app.user and app.user.consumer and order.consumer and app.user.consumer.id == order.consumer.id %}
+                {% if limit_timestamp > now_timestamp %}
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b45309; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <i class="bi bi-clock-history" style="font-size: 18px;"></i>
+                        You have until {{ order.createdAt|date_modify("+2 hours")|date('H:i') }} to pick up your package!
                     </div>
+                {% else %}
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b91c1c; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <i class="bi bi-x-circle" style="font-size: 18px;"></i>
+                        The pickup deadline has passed.
+                    </div>
+                {% endif %}
+                {% elseif app.user and app.user.business and order.package and order.package.business and app.user.business.id == order.package.business.id %}
+                    {% if limit_timestamp > now_timestamp %}
+                        <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b45309; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-clock-history" style="font-size: 18px;"></i>
+                            The client has until {{ order.createdAt|date_modify("+2 hours")|date('H:i') }} to pick it up.
+                        </div>
+                    {% else %}
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b91c1c; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-x-circle" style="font-size: 18px;"></i>
+                            Pickup deadline has passed.
+                        </div>
+                    {% endif %}
+                {% elseif is_granted('ROLE_ADMIN') %}
+                    {% if limit_timestamp > now_timestamp %}
+                        <div style="background: #eff6ff; border: 1px solid #93c5fd; padding: 16px; border-radius: 12px; margin-top: 20px; color: #1e40af; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-clock-history" style="font-size: 18px;"></i>
+                            This order expires at {{ order.createdAt|date_modify("+2 hours")|date('H:i') }}.
+                        </div>
+                    {% else %}
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b91c1c; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                            <i class="bi bi-x-circle" style="font-size: 18px;"></i>
+                            This order has expired.
+                        </div>
+                    {% endif %}
+                {% endif %}
 
                     <div class="eco-order-actions" style="display: flex; gap: 8px; width: 100%;">
                         <a href="{{ path('app_order_view', {id: order.id}) }}" class="eco-btn eco-btn-primary" style="flex: 1; text-align: center; justify-content: center;">View Details</a>

@@ -33,6 +33,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    public function findOneByBusiness(\App\Entity\Business $business): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.business = :business')
+            ->setParameter('business', $business)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

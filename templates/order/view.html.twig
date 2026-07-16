@@ -68,6 +68,30 @@
                     The pickup deadline has passed.
                 </div>
             {% endif %}
+        {% elseif app.user and app.user.business and order.package and order.package.business and app.user.business.id == order.package.business.id %}
+            {% if limit_timestamp > now_timestamp %}
+                <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b45309; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-clock-history" style="font-size: 18px;"></i>
+                    The client has until {{ order.createdAt|date_modify("+2 hours")|date('H:i') }} to pick it up.
+                </div>
+            {% else %}
+                <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b91c1c; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-x-circle" style="font-size: 18px;"></i>
+                    Pickup deadline has passed.
+                </div>
+            {% endif %}
+        {% elseif is_granted('ROLE_ADMIN') %}
+            {% if limit_timestamp > now_timestamp %}
+                <div style="background: #eff6ff; border: 1px solid #93c5fd; padding: 16px; border-radius: 12px; margin-top: 20px; color: #1e40af; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-clock-history" style="font-size: 18px;"></i>
+                    This order expires at {{ order.createdAt|date_modify("+2 hours")|date('H:i') }}.
+                </div>
+            {% else %}
+                <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 16px; border-radius: 12px; margin-top: 20px; color: #b91c1c; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-x-circle" style="font-size: 18px;"></i>
+                    This order has expired.
+                </div>
+            {% endif %}
         {% endif %}
         <div class="eco-detail-actions" style="margin-top: 24px; display: flex; gap: 12px; align-items: center;">
             {% if (app.user and app.user.consumer and order.consumer and app.user.consumer.id == order.consumer.id) or (app.user and app.user.business and order.package and order.package.business and app.user.business.id == order.package.business.id) %}

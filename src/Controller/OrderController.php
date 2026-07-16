@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 use App\Dto\OrderSearchFilter;
 use App\Form\OrderFiltersType;
+use App\Repository\UserRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class OrderController extends AbstractController
@@ -52,7 +53,7 @@ final class OrderController extends AbstractController
         ]);
     }
     #[Route('/order/new/{id?}', name: 'app_order_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ?Package $package = null,MailerInterface $mailer, UrlGeneratorInterface $urlGenerator): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer, UrlGeneratorInterface $urlGenerator, UserRepository $userRepository, ?Package $package = null): Response
     {
         $this->denyAccessUnlessGranted('ROLE_CONSUMER');
 
@@ -105,7 +106,7 @@ final class OrderController extends AbstractController
                         <li>Store: %s</li>
                     </ul>
                     <p>⏰ You must pick up your package by <strong>%s</strong>!</p>
-                    <p>View details here: <a href="%s">%s</a></p>
+                    <p><a href="%s">View your order</a></p>
                 ',
                 $user->getConsumer()->getFirstName(),
                 $order->getId(),
@@ -113,13 +114,14 @@ final class OrderController extends AbstractController
                 number_format($order->getPackage()->getPrice(), 2, '.', ','),
                 $order->getPackage()->getBusiness()->getName(),
                 $limitTime,
-                $orderUrl,
                 $orderUrl
                 ));
             $mailer->send($consumerEmail);
 
-            $businessUser = $order->getPackage()->getBusiness()->getUser();
-            if ($businessUser && $businessUser->getEmail()) {
+            $business = $order->getPackage()->getBusiness();
+            $businessUser = $business ? $userRepository->findOneByBusiness($business) : null;
+            if ($businessUser !== null && $businessUser->getEmail() !== null) {
+                $ordersUrl = $urlGenerator->generate('app_order', [], UrlGeneratorInterface::ABSOLUTE_URL);
                 $businessEmail = (new Email())
                     ->from('eco.meal@example.com')
                     ->to($businessUser->getEmail())
@@ -135,7 +137,7 @@ final class OrderController extends AbstractController
                             <li>Customer: %s</li>
                         </ul>
                         <p>⏰ The customer has until <strong>%s</strong> to pick it up.</p>
-                        <p>Manage your orders here: <a href="%s">%s</a></p>
+                        <p><a href="%s">Manage your orders</a></p>
                     ',
                     $order->getPackage()->getBusiness()->getName(),
                     $order->getId(),
@@ -143,8 +145,7 @@ final class OrderController extends AbstractController
                     number_format($order->getPackage()->getPrice(), 2, '.', ','),
                     $order->getConsumer()->getFirstName() . ' ' . $order->getConsumer()->getLastName(),
                     $limitTime,
-                    $urlGenerator->generate('app_order', [], UrlGeneratorInterface::ABSOLUTE_URL),
-                    $urlGenerator->generate('app_order', [], UrlGeneratorInterface::ABSOLUTE_URL)
+                    $ordersUrl
                     ));
                 $mailer->send($businessEmail);
             }

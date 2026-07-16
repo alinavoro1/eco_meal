@@ -65,6 +65,7 @@ final class BusinessController extends AbstractController
             'form' => $form,
         ]);
     }
+
     #[Route('/business/{id}/edit', name: 'app_business_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Business $business, EntityManagerInterface $entityManager): Response
     {
@@ -97,7 +98,20 @@ final class BusinessController extends AbstractController
         $form = $this->createForm(PackageFormType::class, $package);
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            $photoFile = $form->get('photo')->getData();
+            if ($photoFile) {
+                $newFilename = uniqid() . '.' . $photoFile->guessExtension();
+                try {
+                    $photoFile->move(
+                        $this->getParameter('kernel.project_dir') . '/public/uploads/packages',
+                        $newFilename
+                    );
+                    $package->setPhoto('/uploads/packages/' . $newFilename);
+                } catch (\Exception $e) {
+                    dd($e);
+                }
+            }
             $package->setBusiness($business);
             $entityManager->persist($package);
             $entityManager->flush();
@@ -168,7 +182,7 @@ final class BusinessController extends AbstractController
     }
 
     #[Route('/business/{id}/stats', name: 'app_business_stats')]
-    public function stats(Request $request,Business $business, SaleRecordRepository $saleRecordRepository): Response
+    public function stats(Request $request, Business $business, SaleRecordRepository $saleRecordRepository): Response
     {
         $user = $this->getUser();
         if (!$this->isGranted('ROLE_ADMIN') &&
@@ -184,11 +198,11 @@ final class BusinessController extends AbstractController
 
         $records = $saleRecordRepository->getRecordsByPeriod($business, $period);
 
-        $fulfilledRecords = array_filter($records, function($r) {
+        $fulfilledRecords = array_filter($records, function ($r) {
             return $r->getStatus() === 'fulfilled';
         });
 
-        $cancelledRecords = array_filter($records, function($r) {
+        $cancelledRecords = array_filter($records, function ($r) {
             return $r->getStatus() === 'cancelled';
         });
 
@@ -229,18 +243,18 @@ final class BusinessController extends AbstractController
                 'revenue' => $data['revenue']
             ];
         }
-        usort($categoryStats, function($a, $b) {
+        usort($categoryStats, function ($a, $b) {
             return $b['total'] <=> $a['total'];
         });
 
         return $this->render('business/stats.html.twig', [
-            'business'       => $business,
+            'business' => $business,
             'monthlyRevenue' => $monthlyRevenue,
-            'categoryStats'  => $categoryStats,
-            'totalRevenue'   => $totalRevenue,
-            'totalOrders'    => $totalOrders,
+            'categoryStats' => $categoryStats,
+            'totalRevenue' => $totalRevenue,
+            'totalOrders' => $totalOrders,
             'totalCancelled' => $totalCancelled,
-            'currentPeriod'  => $period,
+            'currentPeriod' => $period,
         ]);
     }
 }

@@ -35,7 +35,7 @@ final class PackageController extends AbstractController
         } else {
             $excludeOrdered = true;
         }
-        
+
 
         $filter = new PackageSearchFilter();
         $form = $this->createForm(PackageFiltersType::class, $filter, [
@@ -85,7 +85,7 @@ final class PackageController extends AbstractController
             if ($needFlush) {
                 $entityManager->flush();
             }
-            
+
 
             return $this->render('package/index.html.twig', [
                 'packages' => null,
@@ -143,6 +143,7 @@ final class PackageController extends AbstractController
                     );
                     $package->setPhoto('/uploads/packages/'.$newFilename);
                 } catch (\Exception $e) {
+                    dd($e);
                 }
             }
 
